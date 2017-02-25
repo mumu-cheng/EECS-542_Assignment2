@@ -26,6 +26,7 @@ After logging into Flux, under your home directory, do
 2. cd ~/torch; ./install.sh; source ~/.bashrc
 
 **Install cutorch** 
+
 -- not sure if the following works on flux
 1. luarocks install torch
 2. luarocks install cutorch
