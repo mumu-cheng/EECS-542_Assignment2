@@ -27,8 +27,6 @@ After logging into Flux, under your home directory, do
 
 **Install cutorch** 
 
--- not sure if the following works on flux
-
 1. luarocks install torch
 2. luarocks install cutorch
 
