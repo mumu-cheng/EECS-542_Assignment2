@@ -4,14 +4,14 @@ local fcn_net = nn.Sequential()
 
 -- building block
 local function ConvReLU(nInputPlane, nOutputPlane)
-  fcn_net:add(nn.SpatialConvolution(nInputPlane, nOutputPlane, 3, 3, 1, 1, 1, 1))
+  fcn_net:add(nn.SpatialConvolution(nInputPlane,nOutputPlane,3,3,1,1,1,1))
   -- 3x3 convolution kernel, stride of 1, pad of 1
   fcn_net:add(nn.ReLU(true))
   return fcn_net
 end
 
 -- conv1_1 & relu1_1
-fcn_net:add(nn.SpatialConvolution(nInputPlane, nOutputPlane, 3, 3, 1, 1, 100, 100))
+fcn_net:add(nn.SpatialConvolution(nInputPlane,nOutputPlane,3,64,1,1,100,100))
 fcn_net:add(nn.ReLU(true))
 -- conv1_2 & relu1_1
 ConvReLU(64,64)
@@ -51,22 +51,22 @@ ConvReLU(512,512)
 -- pool5
 fcn_net:add(nn.SpatialMaxPooling(2,2,2,2))
 -- fc6
-fcn_net:add(nn.SpatialConvolution(512, 4096, 7, 7, 1, 1, 0, 0))
+fcn_net:add(nn.SpatialConvolution(512,4096,7,7,1,1,0,0))
 -- relu6
 fcn_net:add(nn.ReLU(true))
 -- drop6
 fcn_net:add(nn.Dropout(0.5))
 -- fc7
-fcn_net:add(nn.SpatialConvolution(4096, 4096, 1, 1, 1, 1, 0, 0))
+fcn_net:add(nn.SpatialConvolution(4096,4096,1,1,1,1,0,0))
 -- drop7
 fcn_net:add(nn.Dropout(0.5))
 -- score_fr
-fcn_net:add(nn.SpatialConvolution(4096, 21, 1, 1, 1, 1, 0, 0))
+fcn_net:add(nn.SpatialConvolution(4096,21,1,1,1,1,0,0))
 -- upscore2
 fcn_net:add(nn.SpatialFullConvolution(21,21,4,4,2,2,0,0,0,0):noBias())
 
 --score_pool4
-fcn_net:add(nn.SpatialConvolution(512, 21, 1, 1, 1, 1, 0, 0))
+fcn_net:add(nn.SpatialConvolution(512,21,1,1,1,1,0,0))
 --score_pool4c(upscore2)
 fcn_net:add(nn.)
 --fuse_pool4(fuse_pool4)
