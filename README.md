@@ -30,6 +30,10 @@ After logging into Flux, under your home directory, do
 1. luarocks install torch
 2. luarocks install cutorch
 
+**Discussion about hot implement FCN in Torch** 
+
+https://groups.google.com/forum/#!msg/torch7/D7-h8I_Z9ek/G7EeLIrNBAAJ
+
 **If you need hdf5**
 
 1. module load hdf5/1.8.16/gcc
