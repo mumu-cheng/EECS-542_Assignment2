@@ -1,4 +1,5 @@
 require 'nn'
+require 'nngraph'
 
 local fcn_net = nn.Sequential()
 
@@ -24,7 +25,7 @@ ConvReLU(128,128)
 -- pool2
 fcn_net:add(nn.SpatialMaxPooling(2,2,2,2))
 -- conv3_1 && relu3_1
-ConvReLU(256,256)
+ConvReLU(128,256)
 -- conv3_2 && relu3_2
 ConvReLU(256,256)
 -- conv3_3 && relu3_3
@@ -67,7 +68,7 @@ fcn_net:add(nn.SpatialFullConvolution(21,21,4,4,2,2,0,0,0,0):noBias())
 
 --score_pool4
 fcn_net:add(nn.SpatialConvolution(512,21,1,1,1,1,0,0))
---score_pool4c(upscore2)
+--score_pool4c(input: upscore2+score_pool4c)
 fcn_net:add(nn.)
 --fuse_pool4(fuse_pool4)
 fcn_net:add
