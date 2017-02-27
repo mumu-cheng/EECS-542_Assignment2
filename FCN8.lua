@@ -11,7 +11,7 @@ local function ConvReLU(nInputPlane, nOutputPlane)
 end
 
 -- conv1_1 & relu1_1
-fcn_net:add(nn.SpatialConvolution(nInputPlane,nOutputPlane,3,64,1,1,100,100))
+fcn_net:add(nn.SpatialConvolution(3,64,3,3,1,1,100,100))
 fcn_net:add(nn.ReLU(true))
 -- conv1_2 & relu1_1
 ConvReLU(64,64)
