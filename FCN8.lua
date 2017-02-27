@@ -66,20 +66,29 @@ fcn_net:add(nn.SpatialConvolution(4096,21,1,1,1,1,0,0))
 -- upscore2
 fcn_net:add(nn.SpatialFullConvolution(21,21,4,4,2,2,0,0,0,0):noBias())
 
+
+
 --score_pool4
 fcn_net:add(nn.SpatialConvolution(512,21,1,1,1,1,0,0))
---score_pool4c(input: upscore2+score_pool4c)
-fcn_net:add(nn.)
+--score_pool4c(crop score_pool4 to upscore2)
+fcn_net:add(nn.Narrow(2,6,-6))
+fcn_net:add(nn.Narrow(3,6,-6))
 --fuse_pool4(fuse_pool4)
-fcn_net:add
+
 --upscore_l4(upscore_pool4)
 fcn_net:add(nn.SpatialFullConvolution(21,21,4,4,2,2,0,0,0,0):noBias())
 --score_pool3
-fcn_net:add(nn.SpatialConvolution(256, 21, 1, 1, 1, 1, 0, 0))
---score_pool3c
+fcn_net:add(nn.SpatialConvolution(256,21,1,1,1,1,0,0))
+--score_pool3c(crop score_pool3 to upscore_pool4)
+fcn_net:add(nn.Narrow(2,10,-10))
+fcn_net:add(nn.Narrow(3,10,-10))
 --fuse_pool3
+
 --upscore8
---score
+fcn_net:add(nn.SpatialFullConvolution(21,21,16,16,8,8,0,0,0,0):noBias())
+--score(crop upscore8 to data)
+fcn_net:add(nn.Narrow(2,32,-32))
+fcn_net:add(nn.Narrow(3,32,-32))
 --loss
 
 
