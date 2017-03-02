@@ -79,7 +79,3 @@ for i = 1, #test_indices do
     table.insert(testset, test_img)
 end
 
-
-
-
-

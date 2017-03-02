@@ -5,3 +5,4 @@
 -- Initialization
 require 'paths'
 paths.dofile('ref.lua') -- Do global variable initialization and parse the command line input
+print(projectDir)
