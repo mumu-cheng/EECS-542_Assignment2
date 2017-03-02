@@ -5,4 +5,7 @@
 -- Initialization
 require 'paths'
 paths.dofile('ref.lua') -- Do global variable initialization and parse the command line input
-print(projectDir)
+paths.dofile('load.lua')
+paths.dofile('FCN8.lua')
+
+trainer:train(trainset)

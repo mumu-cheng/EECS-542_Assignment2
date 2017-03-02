@@ -13,12 +13,13 @@ function preprocess(img)
     return new_img
 end
 
+
 -- Load image from the VOC2011 image sets
 
 -- Load the train set
 require 'image'
 train_indices = {}
-val_indices = {}
+val_indices = {}\
 test_indices = {}
 
 trainset = {}
