@@ -1,8 +1,7 @@
 require 'nn'
 require 'nngraph'
 require 'paths'
--- require 'cunn'
--- require 'cudnn'
+require 'cudnn'
 
 paths.dofile('CropTable.lua')
 -- primary net
@@ -139,8 +138,10 @@ fcn_net:add(nn.CropTable(2, 32))
 fcn_net:add(nn.CropTable(3, 32))
 fcn_net:add(nn.SelectTable(1))
 
+-- convert the net to cudnn
+cudnn.convert(fcn_net, cudnn)
 --loss
-crit = nn.CrossEntropyCriterion()
+crit = cudnn.SpatialCrossEntropyCriterion()
 
 -- initialization from MSR
 -- local function MSRinit(net)
