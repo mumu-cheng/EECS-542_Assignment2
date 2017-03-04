@@ -19,7 +19,7 @@ end
 -- Load the train set
 require 'image'
 train_indices = {}
-val_indices = {}\
+val_indices = {}
 test_indices = {}
 
 trainset = {}
