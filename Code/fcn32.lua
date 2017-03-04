@@ -1,11 +1,10 @@
 require 'nn'
 require 'nngraph'
-require 'cunn'
-require 'cudnn'
 
 paths.dofile('CropTable.lua')
 
 fcn_net = nn.Sequential()
+
 local layer_stack1 = nn.Sequential()
 local layer_stack2 = nn.Identity()
 
@@ -50,7 +49,6 @@ fcn_net:add(nn.ConcatTable()
 fcn_net:add(nn.CropTable(2, 20))
 fcn_net:add(nn.CropTable(3, 20))
 fcn_net:add(nn.SelectTable(1))
-
 
 -- convert the net to cudnn
 cudnn.convert(fcn_net, cudnn)
