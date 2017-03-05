@@ -138,14 +138,7 @@ fcn_net:add(nn.ConcatTable()
 fcn_net:add(nn.CropTable(2, 32))
 fcn_net:add(nn.CropTable(3, 32))
 fcn_net:add(nn.SelectTable(1))
-fcn_net = fcn_net:cuda()
 -- convert the net to cudnn
 -- cudnn.convert(fcn_net, cudnn)
---loss
-crit = cudnn.SpatialCrossEntropyCriterion()
-
-trainer = nn.StochasticGradient(fcn_net, crit)
-trainer.learningRate = 0.001
-trainer.maxIteration = 5
 
 return fcn_net

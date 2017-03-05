@@ -22,6 +22,7 @@ print('----------------------------------------------------')
 print(#testImage)
 predictedLabel = fcn_net:forward(testImage)
 print(#predictedLabel)
+
 -- print(#predicted[1])
 -- print(#predicted[2])
 
