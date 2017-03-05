@@ -70,6 +70,8 @@ layer_stack_2:add(nn.ReLU(true))
 layer_stack_2:add(nn.Dropout(0.5))
 -- fc7
 layer_stack_2:add(nn.SpatialConvolution(4096,4096,1,1,1,1,0,0))
+-- relu7
+layer_stack_2:add(nn.ReLU(true))
 -- drop7
 layer_stack_2:add(nn.Dropout(0.5))
 -- score_fr
