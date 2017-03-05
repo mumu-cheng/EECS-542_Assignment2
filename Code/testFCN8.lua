@@ -1,9 +1,11 @@
 -- This file tests if our FCN8 network can work 
 require 'paths'
 require 'image'
+require 'cutorch'
 paths.dofile('FCN8.lua')
 print(fcn_net)
 testData = torch.rand(3, 186, 186)
+testData = testData:cuda()
 print(#testData)
 
 predicted = fcn_net:forward(testData)
