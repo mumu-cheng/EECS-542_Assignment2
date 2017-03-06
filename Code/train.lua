@@ -3,12 +3,22 @@ require 'nngraph'
 require 'paths'
 require 'cunn'
 require 'cudnn'
+require 'optim'
 
-opt = {
+-- write the loss to a text file and read from there to plot the loss as training proceeds
+logger = optim.Logger('loss_log.txt')
+
+-- states variables for the optimization process
+local optimState = {
 	learningRate = 0.0001, -- learning rate 10^-4 as per the paper
-	maxIteration = 5, -- max epochs
+	-- learningRateDecay = 1e-4,
 	momentum = 0.9,
-	batch_size = 20
+	weightDecay = 5^-4
+}
+
+local config = {
+	batch_size = 20,
+	max_epoch = 10 -- max number of epochs
 }
 
 -- train 
@@ -24,10 +34,42 @@ function train()
 	trainset = 
 	trainset.data = trainset.data:cuda()
 	trainset.label = trainset.label:cuda()
+
+	-- start to train the net
+	params, gradParams = model:getParameters()
+	for epoch = 1, config.max_epoch do
+   	-- local function we give to optim
+   	-- it takes current weights as input, and outputs the loss
+   	-- and the gradient of the loss with respect to the weights
+   	-- gradParams is calculated implicitly by calling 'backward',
+   	-- because the model's weight and bias gradient tensors
+   	-- are simply views onto gradParams
+   		cur_loss = 0
+   		for 
+	   		function feval(params)
+	      		gradParams:zero()
+				local outputs = fcn_net:forward(batchInputs)
+	      		local loss = criterion:forward(outputs, batchLabels)
+	      		local dloss_doutputs = criterion:backward(outputs, batchLabels)
+	      		fcn_net:backward(batchInputs, dloss_doutputs)
+	      		return loss, gradParams
+	   		end
+	   		_, batch_loss = optim.sgd(feval, params, optimState)
+	   		cur_loss = cur_loss + batch_loss[1]
+	   	end
+   		print('----------------------------------------------------------')
+   		print('epoch = '..epoch .. '    current loss = ' .. current_loss)
+   		-- write the loss since this epoch to the log
+   		logger:add{['training error'] = current_loss}
+   		logger:style{['training error'] = '-'}
+   		logger:plot() 
+	end
+
+
 	-- trainer
 	trainer = nn.StochasticGradient(fcn_net, criterion)
-	trainer.learningRate = opt.learningRate
-	trainer.maxIteration = opt.maxIteration
+	trainer.learningRate = optimState.learningRate
+	trainer.maxIteration = optimState.maxIteration
 	trainer:train(trainset) 
 	-- example for dataset
 	-- dataset={};
@@ -67,10 +109,11 @@ function test()
 		local true_seg = 
 		local net_seg = fcn_net:forward(testset.data[100])
 	end
-
+	for i = 1,(#data)[1] do
+	   local myPrediction = model:forward(data[i][{{2,3}}])
+	   print(string.format("%2d  %6.2f %6.2f", i, myPrediction[1], text[i]))
+	end
 end
 
-for i = 1,opt.max_epoch do
-	train()
-	test()
-end
+train()
+test()
