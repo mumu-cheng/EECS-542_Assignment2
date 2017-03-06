@@ -1,5 +1,25 @@
 # EECS-542_Assignment2
 
+## Some tips about training
+1. Train by SGD with momentum. 
+	Two regimes for batch size: 
+	- Gradients are accumulated over 20 images. Each batch has a varied distribution of class labels.
+	- Batch size of 1 is used for online learning resulting in higher accuracy and faster convergence. Momentum of 0.99.
+2. Learning rate for VGG16 is 10^-4.
+3. Momentum is 0.9; weight decay is 5^-4 or 2^-4; learning rate for biases are doubled.
+4. Zero initialize the class-scoring layer. Random initialization performs badly.
+5. The image-to-image learning setting includes high effective batch size and correlated inputs.
+6. Do not normalize the loss.
+7. Two strategies: learning by stages & all at once.
+	- Fine-tuning in stages takes 36 hours;
+	- Fine-tuning all at once takes 18 hours;
+	- Don't train from scratch.
+8. Lager training set. Hariharan.
+9. Patch sampling?
+10. Class balancing and data augmentation are unnecessary.
+
+ 
+
 ## Dataset
 Download **PASCAL VOC 2011** and **VOC devkit** to root directory of this project, naming the folder as `TrainVal` and `VOCdevkit`, respectively. For the download links, please refer to the project instruction. Note that we are workign on **PASCAL VOC 2011 Segmentation Task**, please pay attention to the version and task.
 

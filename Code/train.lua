@@ -5,10 +5,13 @@ require 'cunn'
 require 'cudnn'
 
 opt = {
-	learningRate = 0.001.
-	maxIteration = 5 -- max epochs
+	learningRate = 0.0001, -- learning rate 10^-4 as per the paper
+	maxIteration = 5, -- max epochs
+	momentum = 0.9,
+	batch_size = 20
 }
 
+-- train 
 function train()
 	-- load net module
 	paths.dofile('FCN8.lua')
@@ -41,6 +44,22 @@ function train()
 	-- end
 end
 
+-- functions to calculate all four metrics
+-- pixel accuracy
+local function cal_pixel_accuracy()
+
+end
+-- pixel accuracy 
+local function cal_mean_accuracy()
+end
+-- mean IU
+local function cal_iu()
+end
+-- frequency weighted IU
+local function cal_fw_iu()
+end
+
+-- test
 function test()
 	testset = 
 
