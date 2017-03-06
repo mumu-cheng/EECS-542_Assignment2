@@ -50,7 +50,7 @@ function train()
    		for iteration = 1, config.trainset_size do
 	   		function feval(params)
 	      		gradParams:zero()
-
+	      		
 				local outputs = fcn_net:forward(batchInputs)
 				-- ignore_label: 255; pixels of 255 are not counted into loss function
 				outputs[batchLabels:eq(255)] = 255
@@ -74,7 +74,6 @@ end
 -- functions to calculate all four metrics
 -- pixel accuracy
 local function cal_pixel_accuracy()
-
 end
 -- pixel accuracy 
 local function cal_mean_accuracy()
