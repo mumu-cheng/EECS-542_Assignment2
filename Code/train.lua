@@ -12,13 +12,14 @@ logger = optim.Logger('loss_log.txt')
 local optimState = {
 	learningRate = 0.0001, -- learning rate 10^-4 as per the paper
 	-- learningRateDecay = 1e-4,
-	momentum = 0.99,
-	weightDecay = 5^-4
+	momentum = 0.90,
+	weightDecay = 0.0005
 }
 -- hyperparameter
 local config = {
 	batch_size = 20,
-	max_epoch = 736 -- max number of epochs
+	max_epoch = 736, -- max number of epochs
+	trainset_size = 
 }
 -- train 
 function train()
@@ -45,12 +46,13 @@ function train()
    	-- because the model's weight and bias gradient tensors
    	-- are simply views onto gradParams
    		cur_loss = 0
-   		for 
+   		for iteration = 1, config.trainset_size do
 	   		function feval(params)
 	      		gradParams:zero()
+
 				local outputs = fcn_net:forward(batchInputs)
 				-- ignore_label: 255; pixels of 255 are not counted into loss function
-
+				outputs[batchLabels:eq(255)] = 255
 	      		local loss = criterion:forward(outputs, batchLabels)
 	      		local dloss_doutputs = criterion:backward(outputs, batchLabels)
 	      		fcn_net:backward(batchInputs, dloss_doutputs)
