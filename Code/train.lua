@@ -12,15 +12,14 @@ logger = optim.Logger('loss_log.txt')
 local optimState = {
 	learningRate = 0.0001, -- learning rate 10^-4 as per the paper
 	-- learningRateDecay = 1e-4,
-	momentum = 0.9,
+	momentum = 0.99,
 	weightDecay = 5^-4
 }
-
+-- hyperparameter
 local config = {
 	batch_size = 20,
-	max_epoch = 10 -- max number of epochs
+	max_epoch = 736 -- max number of epochs
 }
-
 -- train 
 function train()
 	-- load net module
@@ -28,7 +27,7 @@ function train()
 	fcn_net = fcn_net:cuda()
 	print(fcn_net)
 	-- criterion for loss
-	criterion = cudnn.SpatialCrossEntropyCriterion()
+	criterion = cudnn.SpatialCrossEntropyCriterion() -- how to implement 'normalize: false'
 	criterion = criterion:cuda()
 	-- trainset 
 	trainset = 
@@ -36,7 +35,8 @@ function train()
 	trainset.label = trainset.label:cuda()
 
 	-- start to train the net
-	params, gradParams = model:getParameters()
+	params, gradParams = fcn_net:getParameters()
+
 	for epoch = 1, config.max_epoch do
    	-- local function we give to optim
    	-- it takes current weights as input, and outputs the loss
@@ -49,6 +49,8 @@ function train()
 	   		function feval(params)
 	      		gradParams:zero()
 				local outputs = fcn_net:forward(batchInputs)
+				-- ignore_label: 255; pixels of 255 are not counted into loss function
+
 	      		local loss = criterion:forward(outputs, batchLabels)
 	      		local dloss_doutputs = criterion:backward(outputs, batchLabels)
 	      		fcn_net:backward(batchInputs, dloss_doutputs)
@@ -57,20 +59,14 @@ function train()
 	   		_, batch_loss = optim.sgd(feval, params, optimState)
 	   		cur_loss = cur_loss + batch_loss[1]
 	   	end
-   		print('----------------------------------------------------------')
-   		print('epoch = '..epoch .. '    current loss = ' .. current_loss)
+   		print('-----------------------------------------------------------')
+   		print('epoch = ' .. epoch .. ',    current loss = ' .. current_loss)
    		-- write the loss since this epoch to the log
    		logger:add{['training error'] = current_loss}
    		logger:style{['training error'] = '-'}
    		logger:plot() 
 	end
 
-
-	-- trainer
-	trainer = nn.StochasticGradient(fcn_net, criterion)
-	trainer.learningRate = optimState.learningRate
-	trainer.maxIteration = optimState.maxIteration
-	trainer:train(trainset) 
 	-- example for dataset
 	-- dataset={};
 	-- function dataset:size() return 100 end -- 100 examples

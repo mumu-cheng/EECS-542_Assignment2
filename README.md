@@ -15,7 +15,7 @@
 	- Fine-tuning all at once takes 18 hours;
 	- Don't train from scratch.
 8. Lager training set. Hariharan.
-9. Patch sampling?
+9. Patch sampling: unnecessary. Train on whole images.
 10. Class balancing and data augmentation are unnecessary.
 
  
