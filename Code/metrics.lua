@@ -25,29 +25,26 @@ function prepare_metrics()
 	-- the total number of pixels of class i
 	local ti = torch.sum(hist,2)
 	-- the total number of pixels which have been correctly classified
-	local m = torch.trace(hist)
+	local n = torch.trace(hist)
 	-- the number of correctly classified pixel for each class
-	local mi = torch.diag(hist)
+	local ni = torch.diag(hist)
 	-- union 
 	local u = torch.add(torch.sum(hist,1),ti)
 	u:csub(torch.diag(hist))
 	-- frequency weighted
 	local fw = torch.div(toch.sum(torch.cmul(ti,mi)),t)
-	return
 end
 
 
 -- pixel accuracy
 local function cal_pixel_accuracy()
-
+	acc = torch.div(n,t)
+	print('>>>','epoch ',epoch,'pixel accuracy ',acc)
+	return acc
 end
--- mean loss
-print('>>>','Iteration',iter,'loss',loss)
--- pixel accuracy
-acc = torch.div(m,t)
-print('>>>','Iteration',iter,'overall accuracy ',acc)
+
 -- per-class accuracy
-per_acc = torch.cdiv(mi,ti)
+per_acc = torch.cdiv(ni,ti)
 print('>>>','Iteration',iter,'per class accuracy ',per_acc)
 -- per-class IU
 iu = torch.cdiv(mi,u)

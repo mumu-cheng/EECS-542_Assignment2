@@ -47,7 +47,6 @@ function train()
    	-- gradParams is calculated implicitly by calling 'backward',
    	-- because the model's weight and bias gradient tensors
    	-- are simply views onto gradParams
-
    		cur_loss = 0
    		for iteration = 1, config.trainset_size do
 	   		function feval(params)
@@ -83,8 +82,8 @@ function test()
 		net_seg = fcn_net:forward(test_image)
 		compute_hist(net_seg,true_seg)
 	end
-
-	print(string.format("%2d  %6.2f %6.2f", i, myPrediction[1], text[i]))
+	prepare_metrics()
+	cal_pixel_accuracy()
 end
 -- run
 train()
