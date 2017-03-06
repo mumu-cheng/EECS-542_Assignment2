@@ -23,6 +23,7 @@ local config = {
 	batch_size = 20,
 	max_epoch = 736, -- max number of epochs
 	trainset_size = trainset:size()
+	testset_size = testset:size()
 }
 -- train 
 function train()
@@ -72,26 +73,11 @@ function train()
    		logger:plot() 
 		trainset:shuffle()
 	end
-
-	-- example for dataset
-	-- dataset={};
-	-- function dataset:size() return 100 end -- 100 examples
-	-- for i=1,dataset:size() do 
-	--   local input = torch.randn(2);     -- normally distributed example in 2d
-	--   local output = torch.Tensor(1);
-	--   if input[1]*input[2]>0 then     -- calculate label for XOR function
-	--     output[1] = -1;
-	--   else
-	--     output[1] = 1
-	--   end
-	--   dataset[i] = {input, output}
-	-- end
 end
 
 -- functions to calculate all four metrics
 -- pixel accuracy
 local function cal_pixel_accuracy()
-
 end
 -- pixel accuracy 
 local function cal_mean_accuracy()
@@ -105,16 +91,13 @@ end
 
 -- test
 function test()
-	testset = 
-
-	for 1=1,10000 do
+	for i = 1, testset_size do 
+		local test_image = 
 		local true_seg = 
-		local net_seg = fcn_net:forward(testset.data[100])
+		local net_seg = fcn_net:forward(test_image)
 	end
-	for i = 1,(#data)[1] do
-	   local myPrediction = model:forward(data[i][{{2,3}}])
-	   print(string.format("%2d  %6.2f %6.2f", i, myPrediction[1], text[i]))
-	end
+
+	print(string.format("%2d  %6.2f %6.2f", i, myPrediction[1], text[i]))
 end
 
 train()
