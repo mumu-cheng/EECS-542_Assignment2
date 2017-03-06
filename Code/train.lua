@@ -11,7 +11,6 @@ paths.dofile('load.lua')
 paths.dofile('metrics.lua')
 -- write the loss to a text file and read from there to plot the loss as training proceeds
 logger = optim.Logger('loss_log.txt')
-
 -- states variables for the optimization process
 local optimState = {
 	learningRate = 0.0001, -- learning rate 10^-4 as per the paper
@@ -76,17 +75,17 @@ function train()
 		trainset:shuffle()
 	end
 end
-
 -- test
 function test()
 	for i = 1, testset_size do 
 		test_image = testset[i][1]:cuda()
 		true_seg = testset[i][2]:cuda()
 		net_seg = fcn_net:forward(test_image)
+		compute_hist(net_seg,true_seg)
 	end
 
 	print(string.format("%2d  %6.2f %6.2f", i, myPrediction[1], text[i]))
 end
-
+-- run
 train()
 test()
