@@ -7,7 +7,8 @@ require 'optim'
 
 -- load the data
 paths.dofile('load.lua')
-
+-- load the functions to calculate metrics 
+paths.dofile('metrics.lua')
 -- write the loss to a text file and read from there to plot the loss as training proceeds
 logger = optim.Logger('loss_log.txt')
 
@@ -22,7 +23,8 @@ local optimState = {
 local config = {
 	batch_size = 20,
 	max_epoch = 736, -- max number of epochs
-	trainset_size = trainset:size()
+	trainset_size = trainset:size(),
+	valset_size = valset:size(),
 	testset_size = testset:size()
 }
 -- train 
@@ -75,26 +77,12 @@ function train()
 	end
 end
 
--- functions to calculate all four metrics
--- pixel accuracy
-local function cal_pixel_accuracy()
-end
--- pixel accuracy 
-local function cal_mean_accuracy()
-end
--- mean IU
-local function cal_iu()
-end
--- frequency weighted IU
-local function cal_fw_iu()
-end
-
 -- test
 function test()
 	for i = 1, testset_size do 
-		local test_image = 
-		local true_seg = 
-		local net_seg = fcn_net:forward(test_image)
+		test_image = testset[i][1]:cuda()
+		true_seg = testset[i][2]:cuda()
+		net_seg = fcn_net:forward(test_image)
 	end
 
 	print(string.format("%2d  %6.2f %6.2f", i, myPrediction[1], text[i]))

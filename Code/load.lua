@@ -4,7 +4,7 @@
 -- substract the mean
 function preprocess(img)
     mean = {104.00698793, 116.66876762, 122.67891434}
-    new_img = img:double()
+    new_img = (img:clone()):double()
     new_img[{{1}, {}, {}}] = img[{{3}, {}, {}}]
     new_img[{{3}, {}, {}}] = img[{{1}, {}, {}}]
     for i = 1,3 do
@@ -76,6 +76,11 @@ for i = 1, #val_indices do
     val_img_file = './VOC2011/JPEGImages/'..val_indices[i]..'.jpg';
     local val_img = preprocess(image.load(val_img_file, 3, 'byte'))
     table.insert(valset, val_img)
+end
+
+
+function valset:size()
+    return #self
 end
 
 -- load the test set
