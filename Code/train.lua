@@ -5,6 +5,9 @@ require 'cunn'
 require 'cudnn'
 require 'optim'
 
+-- load the data
+paths.dofile('load.lua')
+
 -- write the loss to a text file and read from there to plot the loss as training proceeds
 logger = optim.Logger('loss_log.txt')
 
@@ -19,7 +22,7 @@ local optimState = {
 local config = {
 	batch_size = 20,
 	max_epoch = 736, -- max number of epochs
-	trainset_size = 
+	trainset_size = trainset:size()
 }
 -- train 
 function train()
@@ -30,10 +33,7 @@ function train()
 	-- criterion for loss
 	criterion = cudnn.SpatialCrossEntropyCriterion() -- how to implement 'normalize: false'
 	criterion = criterion:cuda()
-	-- trainset 
-	trainset = 
-	trainset.data = trainset.data:cuda()
-	trainset.label = trainset.label:cuda()
+	-- trainset already loaded
 
 	-- start to train the net
 	params, gradParams = fcn_net:getParameters()
@@ -45,10 +45,13 @@ function train()
    	-- gradParams is calculated implicitly by calling 'backward',
    	-- because the model's weight and bias gradient tensors
    	-- are simply views onto gradParams
+
    		cur_loss = 0
    		for iteration = 1, config.trainset_size do
 	   		function feval(params)
 	      		gradParams:zero()
+				batchInputs = trainset[iteration][1]:cuda()
+				batchLabels = trainset[iteration][2]:cuda()
 
 				local outputs = fcn_net:forward(batchInputs)
 				-- ignore_label: 255; pixels of 255 are not counted into loss function
@@ -67,6 +70,7 @@ function train()
    		logger:add{['training error'] = current_loss}
    		logger:style{['training error'] = '-'}
    		logger:plot() 
+		trainset:shuffle()
 	end
 
 	-- example for dataset

@@ -49,6 +49,19 @@ function trainset:size()
     return #self
 end
 
+function swap(array, index1, index2)
+    array[index1], array[index2] = array[index2], array[index1]
+end
+
+function trainset:shuffle()
+    local counter = trainset:size()
+    while counter > 1 do
+        local index = math.random(counter)
+        swap(trainset, index, counter)
+        counter = counter - 1
+    end
+end
+
 
 -- load the validate set
 local val_f = io.open("./VOC2011/ImageSets/Segmentation/val.txt")
