@@ -34,6 +34,7 @@ function train()
 	fcn_net = fcn_net:cuda()
 	print(fcn_net)
 	-- criterion for loss
+	-- or SpatialSoftMax
 	criterion = cudnn.SpatialCrossEntropyCriterion() -- how to implement 'normalize: false'
 	criterion = criterion:cuda()
 	-- start to train the net
