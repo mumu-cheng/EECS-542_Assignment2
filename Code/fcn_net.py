@@ -5,7 +5,7 @@ import numpy as np
 import utils
 import read_MITSceneParsingData as scene_parsing
 import datetime
-import BatchDatsetReader as dataset
+import voc_helper as dataset
 from six.moves import xrange
 
 # set paths and hyper-parameters for training
@@ -14,12 +14,11 @@ tf.flags.DEFINE_string("logs_dir", "../logs/", "path to logs directory")
 tf.flags.DEFINE_string("data_dir", "../data/VOCdevkit/VOC2011/", "path to dataset") # TODO: correct the path to data
 tf.flags.DEFINE_string("model_dir", "../models/", "Path to pre-trained vgg model")
 
-tf.flags.DEFINE_integer("batch_size", "1", "batch size for training (training on single whole images)")
 tf.flags.DEFINE_float("learning_rate", "1e-4", "Learning rate for Adam Optimizer (same as in the paper)")
-# tf.flags.DEFINE_bool('debug', "False", "Debug mode: True/ False")
+tf.flags.DEFINE_string('mode', "train", "Mode train/ test/ visualize")
 
-MAX_ITERATION = int(1e5 + 1)
-IMAGE_SIZE = 224 # TODO: deal with images with arbitrary input size
+MAX_EPOCHS = int(50)
+MAX_ITERS  = int(1000)
 
 # a forward pass in vgg net
 def vgg_net(weights, image):
@@ -138,8 +137,8 @@ def main(argv=None):
     model_data = utils.load_vgg_model(FLAGS.model_dir, 'imagenet-vgg-verydeep-19.mat')
     
     # create placeholder for data and labels (note that the shape is subject to variation)
-    image      = tf.placeholder(tf.float32, shape=None, name="input_image")
-    annotation = tf.placeholder(tf.int32,   shape=None, name="annotation")
+    image      = tf.placeholder(tf.float32, shape=[1, None, None, 3], name="input_image")
+    annotation = tf.placeholder(tf.int32,   shape=[1, None, None, 1], name="annotation")
 
     # forward pass (inference())
     pred_annotation, logits = inference(image, model_data)
@@ -159,15 +158,10 @@ def main(argv=None):
     print("Setting up summary op...")
     summary_op = tf.summary.merge_all()
 
-    print("Setting up image reader...")
-    train_records, valid_records = scene_parsing.read_dataset(FLAGS.data_dir)
-
-    print("Setting up dataset reader")
-    image_options = {'resize': True, 'resize_size': IMAGE_SIZE}
+    print("Loading training and validation dataset...")
     if FLAGS.mode == 'train':
-        train_dataset_reader = dataset.BatchDatset(train_records, image_options)
-    validation_dataset_reader = dataset.BatchDatset(valid_records, image_options)
-
+        train_data = dataset.voc_reader(FLAGS.data_dir, 'train')
+    val_data = dataset.voc_reader(FLAGS.data_dir, 'val')
 
     # all of the build preparation has been completed and all of the necessary ops generated
     # create a session to run the graph
@@ -188,20 +182,20 @@ def main(argv=None):
     if FLAGS.mode == "train":
         for itr in xrange(MAX_ITERATION):
             # read in next training batch and feed it into net
-            train_images, train_annotations = train_dataset_reader.next_batch(FLAGS.batch_size)
+            train_images, train_labels = train_data.get_next_pair()
 
-            sess.run(train_op, feed_dict={image: train_images, annotation: train_annotations})
+            sess.run(train_op, feed_dict={image: train_images, annotation: train_labels})
 
-            if itr % 10 == 0:
+            if itr % 50 == 0:
                 train_loss, summary_str = sess.run([loss, summary_op], feed_dict=feed_dict)
                 
                 # save training result
                 print("Step: %d, Train_loss:%g" % (itr, train_loss))
                 summary_writer.add_summary(summary_str, itr)
 
-            if itr % 500 == 0:
-                valid_images, valid_annotations = validation_dataset_reader.next_batch(FLAGS.batch_size)
-                valid_loss = sess.run(loss, feed_dict={image: valid_images, annotation: valid_annotations})
+            if itr % 2000 == 0:
+                valid_images, valid_labels = val_data.get_next_pair()
+                valid_loss = sess.run(loss, feed_dict={image: valid_images, annotation: valid_labels})
                 
                 # save validation result and model snapshot
                 print("%s ---> Validation_loss: %g" % (datetime.datetime.now(), valid_loss))
