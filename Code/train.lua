@@ -73,10 +73,12 @@ end
 
 -- validate
 function val()
+	softmax_layer = nn.SpatialSoftMax()
 	for iter = 1, valset_size do 
 		val_image = valset[i][1]:cuda()
 		true_seg = valset[i][2]:cuda()
 		net_seg = fcn_net:forward(val_image)
+		net_seg = softmax_layer:forward(net_seg)
 		compute_hist(net_seg,true_seg) 
 	end
 	calculate_metrics()
@@ -88,6 +90,7 @@ function test()
 		test_image = testset[i][1]:cuda()
 		true_seg = testset[i][2]:cuda()
 		net_seg = fcn_net:forward(test_image)
+		net_seg = softmax_layer:forward(net_seg)
 		compute_hist(net_seg,true_seg)
 	end
 	epoch = 'test phase'
