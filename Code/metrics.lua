@@ -35,21 +35,22 @@ function calculate_metrics()
 	local fw = torch.div(toch.sum(torch.cmul(ti,mi)),t)
 	-- pixel accuracy
 	acc = torch.div(n,t)
-	print('>>>','epoch ',epoch,'pixel accuracy ',acc)
+	print('>>>','epoch ', epoch,'pixel accuracy ',acc)
 	-- mean accuracy / per-class accuracy
 	per_acc = torch.cdiv(ni,ti)
 	mean_acc = torch.sum(per_acc) / n_cl
-	print('>>>','epoch ',epoch,'mean accuracy ',mean_acc)
+	print('>>>','epoch ', epoch,'mean accuracy ',mean_acc)
 	-- mean IU / per-class IU
 	iu = torch.cdiv(mi,u)
 	mean_iu = torch.sum(iu) / n_cl
-	print('>>>','epoch ',epoch,'mean IU ',mean_iu)
+	print('>>>','epoch ', epoch,'mean IU ',mean_iu)
 	-- frequency weighted IU
-
+	freq = torch.div(ti,t)
+	fk1 = torch.cmul(freq,torch.gt(freq,0))
+	fk2 = torch.cmul(iu,torch.gt(freq,0))
+	fk = torch.sum(torch.cmul(fk1,fk2))
+	fwiu = torch.cdiv(fw,fk)
+	print('>>>','epoch ', epoch, 'frequency weighted IU', fwiu)
 end
-freq = torch.div(ti,t)
-fk1 = torch.cmul(freq,torch.gt(freq,0))
-fk2 = torch.cmul(iu,torch.gt(freq,0))
-fk = torch.sum(torch.cmul(fk1,fk2))
-fiu = torch.cdiv(fw,fk)
-print('>>>','Iteration', iter, 'fwavacc', fiu)
+
+

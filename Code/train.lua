@@ -22,7 +22,7 @@ local optimState = {
 -- hyperparameter
 local config = {
 	batch_size = 20,
-	max_epoch = 736, -- max number of epochs
+	max_epoch = 2, -- max number of epochs
 	trainset_size = trainset:size(),
 	valset_size = valset:size(),
 	testset_size = testset:size()
