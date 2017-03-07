@@ -4,6 +4,10 @@ require 'paths'
 require 'cunn'
 require 'cudnn'
 require 'optim'
+-- >>>>>>>> Problems to solve:
+-- 1. Label values 1 - 21
+-- 2. Val and Test dataset
+
 
 -- load the data
 paths.dofile('load.lua')
@@ -50,17 +54,17 @@ function train()
 				batchLabels = nn.utils.addSingletonDimension(trainset[iter][2],1):cuda()
 				local outputs = fcn_net:forward(batchInputs)
 				-- ignore_label: 255; pixels of 255 are not counted into loss function
-				-- outputs[batchLabels:eq(255)] = 255
+				outputs[batchLabels:eq(255)] = 255
 	      		local loss = criterion:forward(outputs, batchLabels)
 	      		local dloss_doutputs = criterion:backward(outputs, batchLabels)
 	      		fcn_net:backward(batchInputs, dloss_doutputs)
 	      		return loss, gradParams
 	   		end
-	   		_, batch_loss = optim.sgd(feval, params, optimState)
+	   		optim.sgd(feval, params, optimState)
 	   		-- save the preliminary model
 			-- torch.save('fcn8.t7', fcn_net)
 			break
-	   		cur_loss = cur_loss + batch_loss[1]
+	   		cur_loss = cur_loss + sum(loss)
 	   	end
    		print('-----------------------------------------------------------')
    		print('epoch = '.. epoch.. ',    current loss = '.. cur_loss)
