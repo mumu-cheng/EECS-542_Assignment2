@@ -38,7 +38,6 @@ function train()
 	criterion = criterion:cuda()
 	-- start to train the net
 	params, gradParams = fcn_net:getParameters()
-	
 	for epoch = 1, config.max_epoch do
    		cur_loss = 0
    		for iter = 1, config.trainset_size do
@@ -46,7 +45,6 @@ function train()
 	      		gradParams:zero()
 				batchInputs = trainset[iter][1]:cuda()
 				batchLabels = trainset[iter][2]:cuda()
-
 				local outputs = fcn_net:forward(batchInputs)
 				-- ignore_label: 255; pixels of 255 are not counted into loss function
 				outputs[batchLabels:eq(255)] = 255
