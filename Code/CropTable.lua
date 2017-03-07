@@ -22,17 +22,17 @@ function CropTable:updateGradInput(input, gradOutput)
     rightPaddingSize = gradOutput[1]:size()
     rightPaddingSize[self.axis] = input[1]:size()[self.axis] - input[2]:size()[self.axis] - self.offset + 1
 
-    leftPadding = torch.zeros(leftPaddingSize)
-    rightPadding = torch.zeros(rightPaddingSize)
-    print('--------------------')
-    print('leftPadding: '..(#leftPadding))
-    print('--------------------')
-    print('rightPadding: '..(#rightPadding))
-    print('--------------------')
-    print('gradOutput: '..(#gradOutput[1]))
-    print('--------------------')
-    print('axis: '..(self.axis))
-
-    self.gradInput = {torch.cat({leftPadding, gradOutput[1]:double(), rightPadding}, self.axis):cuda(), gradOutput[2]}
+    if rightPaddingSize[self.axis] == 0 then
+        leftPadding = torch.zeros(leftPaddingSize)
+        self.gradInput = {torch.cat({leftPadding, gradOutput[1]:double()}, self.axis):cuda(), gradOutput[2]:cuda()}
+    else 
+        leftPadding = torch.zeros(leftPaddingSize)
+        rightPadding = torch.zeros(rightPaddingSize)
+        self.gradInput = {torch.cat({leftPadding, gradOutput[1]:double(), rightPadding}, self.axis):cuda(), gradOutput[2]:cuda()}
+    end
+    -- print('leftPaddingSize --------------------')
+    -- print(leftPaddingSize)
+    -- print('rightPaddingSize --------------------')
+    -- print(rightPaddingSize)
     return self.gradInput
 end

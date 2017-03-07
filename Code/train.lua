@@ -56,7 +56,7 @@ function train()
 	   		end
 	   		_, batch_loss = optim.sgd(feval, params, optimState)
 	   		-- save the preliminary model
-			torch.save('fcn8.t7', fcn_net)
+			-- torch.save('fcn8.t7', fcn_net)
 			break
 	   		cur_loss = cur_loss + batch_loss[1]
 	   	end
