@@ -5,9 +5,8 @@ import os, sys
 import scipy.io
 
 
-def load_vgg_model(model_path, model_url):
-    filename = model_url.split("/")[-1]
-    filepath = os.path.join(dir_path, filename)
+def load_vgg_model(model_path, model_name):
+    filepath = os.path.join(model_path, model_name)
     if not os.path.exists(filepath):
         raise IOError("VGG model file not found! Please download it first!")
     data = scipy.io.loadmat(filepath)

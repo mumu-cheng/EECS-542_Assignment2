@@ -21,8 +21,6 @@ tf.flags.DEFINE_float("learning_rate", "1e-4", "Learning rate for Adam Optimizer
 MAX_ITERATION = int(1e5 + 1)
 IMAGE_SIZE = 224 # TODO: deal with images with arbitrary input size
 
-MODEL_URL = 'http://www.vlfeat.org/matconvnet/models/beta16/imagenet-vgg-verydeep-19.mat'
-
 # a forward pass in vgg net
 def vgg_net(weights, image):
     layers = (
@@ -59,20 +57,15 @@ def vgg_net(weights, image):
     return net
 
 
-def inference(image):
+def inference(image, model_data):
     print("setting up vgg initialized conv layers ...")
-
-    # load pre-trained and cached vgg net file
-    model_data = utils.load_vgg_model(FLAGS.model_dir, MODEL_URL)
-
-    mean = model_data['normalization'][0][0][0]
-    mean_pixel = np.mean(mean, axis=(0, 1))
-    weights = np.squeeze(model_data['layers'])
-
+    
     # preprocess the image by subtracting the mean value
+    mean_pixel = np.array([104.00698793, 116.66876762, 122.67891434])
+    mean_pixel = mean_pixel.astype(image.dtype)
     image = image - mean_pixel;
-    # processed_image = utils.process_image(image, mean_pixel)
 
+    weights = np.squeeze(model_data['layers'])
     with tf.variable_scope("inference"):
 
         # obtain the forward result of each layer in vgg
@@ -140,11 +133,16 @@ def train(loss_val, var_list):
 
 
 def main(argv=None):
-    image = tf.placeholder(tf.float32, shape=[None, IMAGE_SIZE, IMAGE_SIZE, 3], name="input_image")
-    annotation = tf.placeholder(tf.int32, shape=[None, IMAGE_SIZE, IMAGE_SIZE, 1], name="annotation")
+
+    # load pre-trained and cached vgg net file
+    model_data = utils.load_vgg_model(FLAGS.model_dir, 'imagenet-vgg-verydeep-19.mat')
+    
+    # create placeholder for data and labels (note that the shape is subject to variation)
+    image      = tf.placeholder(tf.float32, shape=None, name="input_image")
+    annotation = tf.placeholder(tf.int32,   shape=None, name="annotation")
 
     # forward pass (inference())
-    pred_annotation, logits = inference(image)
+    pred_annotation, logits = inference(image, model_data)
     tf.summary.image("input_image", image, max_outputs=2)
     tf.summary.image("ground_truth", tf.cast(annotation, tf.uint8), max_outputs=2)
     tf.summary.image("pred_annotation", tf.cast(pred_annotation, tf.uint8), max_outputs=2)
@@ -153,7 +151,6 @@ def main(argv=None):
     loss = tf.reduce_mean((tf.nn.sparse_softmax_cross_entropy_with_logits(logits,
                                                                           tf.squeeze(annotation, squeeze_dims=[3]),
                                                                           name="entropy")))
-
     # training (train())
     tf.summary.scalar("entropy", loss)
     trainable_var = tf.trainable_variables()
