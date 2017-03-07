@@ -61,7 +61,7 @@ function train()
 	   		cur_loss = cur_loss + batch_loss[1]
 	   	end
    		print('-----------------------------------------------------------')
-   		print('epoch = ' .. epoch .. ',    current loss = ' .. current_loss)
+   		print('epoch = '.. epoch.. ',    current loss = '.. cur_loss)
    		val()
    		-- write the loss since this epoch to the log
    		logger:add{epoch, current_loss, acc, mean_acc, mean_iu, fw_iu}
@@ -74,7 +74,7 @@ end
 -- validate
 function val()
 	softmax_layer = nn.SpatialSoftMax()
-	for iter = 1, valset_size do 
+	for i = 1, congfig.valset_size do 
 		val_image = valset[i][1]:cuda()
 		true_seg = valset[i][2]:cuda()
 		net_seg = fcn_net:forward(val_image)
@@ -86,7 +86,7 @@ end
 
 -- test
 function test()
-	for i = 1, testset_size do 
+	for i = 1, congfig.testset_size do 
 		test_image = testset[i][1]:cuda()
 		true_seg = testset[i][2]:cuda()
 		net_seg = fcn_net:forward(test_image)

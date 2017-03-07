@@ -38,20 +38,20 @@ function calculate_metrics()
 	local fw = torch.div(toch.sum(torch.cmul(ti,ni)),t)
 	-- pixel accuracy
 	acc = torch.div(n,t)
-	print('>>>','epoch ', epoch,'pixel accuracy ',acc)
+	print('>>> ' .. 'epoch ' .. epoch .. ' -- pixel accuracy ' .. acc)
 	-- mean accuracy / per-class accuracy
 	per_acc = torch.cdiv(ni,ti)
 	mean_acc = torch.sum(per_acc) / n_cl
-	print('>>>','epoch ', epoch,'mean accuracy ',mean_acc)
+	print('>>> ' .. 'epoch ' .. epoch .. ' -- mean accuracy ' .. mean_acc)
 	-- mean IU / per-class IU
 	iu = torch.cdiv(ni,u)
 	mean_iu = torch.sum(iu) / n_cl
-	print('>>>','epoch ', epoch,'mean IU ',mean_iu)
+	print('>>> ' .. 'epoch ' .. epoch .. ' -- mean IU ' .. mean_iu)
 	-- frequency weighted IU
 	num = torch.cmul(ti,ni)
 	det = torch.cdiv(num,u)
 	fwiu = torch.sum(det) / t
-	print('>>>','epoch ', epoch, 'frequency weighted IU', fwiu)
+	print('>>> ' .. 'epoch ' .. epoch .. ' -- frequency weighted IU' .. fwiu)
 end
 
 
