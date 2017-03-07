@@ -45,7 +45,7 @@ function train()
 	   		function feval(params)
 	      		gradParams:zero()
 				batchInputs = trainset[iter][1]:cuda()
-				batchLabels = trainset[iter][2]:cuda()
+				batchLabels = utils.addSingletonDimension(trainset[iter][2],1):cuda()
 				local outputs = fcn_net:forward(batchInputs)
 				-- ignore_label: 255; pixels of 255 are not counted into loss function
 				outputs[batchLabels:eq(255)] = 255
