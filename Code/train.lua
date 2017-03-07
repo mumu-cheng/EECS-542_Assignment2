@@ -74,7 +74,7 @@ end
 -- validate
 function val()
 	softmax_layer = nn.SpatialSoftMax()
-	for i = 1, congfig.valset_size do 
+	for i = 1, config.valset_size do 
 		val_image = valset[i][1]:cuda()
 		true_seg = valset[i][2]:cuda()
 		net_seg = fcn_net:forward(val_image)
