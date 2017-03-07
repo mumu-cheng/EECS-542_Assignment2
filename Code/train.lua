@@ -30,7 +30,7 @@ local config = {
 -- train 
 function train()
 	-- load net module
-	paths.dofile('FCN8.lua')
+	paths.dofile('fcn8.lua')
 	fcn_net = fcn_net:cuda()
 	print(fcn_net)
 	-- criterion for loss
