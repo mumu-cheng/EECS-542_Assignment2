@@ -27,12 +27,14 @@ local config = {
 	valset_size = valset:size(),
 	testset_size = testset:size()
 }
+
+-- load net module
+paths.dofile('fcn8.lua')
+fcn_net = fcn_net:cuda()
+print(fcn_net)
+
 -- train 
 function train()
-	-- load net module
-	paths.dofile('fcn8.lua')
-	fcn_net = fcn_net:cuda()
-	print(fcn_net)
 	-- criterion for loss
 	-- or SpatialSoftMax or SpatialCrossEntropyCriterion
 	criterion = cudnn.SpatialSoftMax() -- how to implement 'normalize: false'
@@ -76,6 +78,7 @@ function val()
 	softmax_layer = nn.SpatialSoftMax()
 	for i = 1, config.valset_size do 
 		val_image = valset[i][1]:cuda()
+		print(#val_image)
 		true_seg = valset[i][2]:cuda()
 		net_seg = fcn_net:forward(val_image)
 		net_seg = softmax_layer:forward(net_seg)
@@ -86,6 +89,7 @@ end
 
 -- test
 function test()
+	softmax_layer = nn.SpatialSoftMax()
 	for i = 1, config.testset_size do 
 		test_image = testset[i][1]:cuda()
 		true_seg = testset[i][2]:cuda()
