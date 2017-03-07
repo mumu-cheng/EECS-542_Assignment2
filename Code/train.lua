@@ -86,7 +86,7 @@ end
 
 -- test
 function test()
-	for i = 1, congfig.testset_size do 
+	for i = 1, config.testset_size do 
 		test_image = testset[i][1]:cuda()
 		true_seg = testset[i][2]:cuda()
 		net_seg = fcn_net:forward(test_image)
