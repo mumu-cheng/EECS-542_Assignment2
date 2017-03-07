@@ -10,7 +10,8 @@ paths.dofile('load.lua')
 -- load the functions to calculate metrics 
 paths.dofile('metrics.lua')
 -- write the loss to a text file and read from there to plot the loss as training proceeds
-logger = optim.Logger('loss_log.txt')
+logger = optim.Logger('train_loss.log')
+logger:setNames{'Epoch','Training loss.','Val pixel acc.','Val mean acc.','mean IU','FW IU'}
 -- states variables for the optimization process
 local optimState = {
 	learningRate = 0.0001, -- learning rate 10^-4 as per the paper
@@ -35,24 +36,16 @@ function train()
 	-- criterion for loss
 	criterion = cudnn.SpatialCrossEntropyCriterion() -- how to implement 'normalize: false'
 	criterion = criterion:cuda()
-	-- trainset already loaded
-
 	-- start to train the net
 	params, gradParams = fcn_net:getParameters()
 
 	for epoch = 1, config.max_epoch do
-   	-- local function we give to optim
-   	-- it takes current weights as input, and outputs the loss
-   	-- and the gradient of the loss with respect to the weights
-   	-- gradParams is calculated implicitly by calling 'backward',
-   	-- because the model's weight and bias gradient tensors
-   	-- are simply views onto gradParams
    		cur_loss = 0
-   		for iteration = 1, config.trainset_size do
+   		for iter = 1, config.trainset_size do
 	   		function feval(params)
 	      		gradParams:zero()
-				batchInputs = trainset[iteration][1]:cuda()
-				batchLabels = trainset[iteration][2]:cuda()
+				batchInputs = trainset[iter][1]:cuda()
+				batchLabels = trainset[iter][2]:cuda()
 
 				local outputs = fcn_net:forward(batchInputs)
 				-- ignore_label: 255; pixels of 255 are not counted into loss function
@@ -67,13 +60,26 @@ function train()
 	   	end
    		print('-----------------------------------------------------------')
    		print('epoch = ' .. epoch .. ',    current loss = ' .. current_loss)
+   		val()
    		-- write the loss since this epoch to the log
-   		logger:add{['training error'] = current_loss}
-   		logger:style{['training error'] = '-'}
-   		logger:plot() 
+   		logger:add{epoch, current_loss, acc, mean_acc, mean_iu, fw_iu}
+   		logger:style{'+-','+-','+-','+-','+-','+-'}   		
 		trainset:shuffle()
 	end
+	-- logger:plot() 
 end
+
+-- validate
+function val()
+	for iter = 1, valset_size do 
+		val_image = valset[i][1]:cuda()
+		true_seg = valset[i][2]:cuda()
+		net_seg = fcn_net:forward(val_image)
+		compute_hist(net_seg,true_seg) 
+	end
+	calculate_metrics()
+end
+
 -- test
 function test()
 	for i = 1, testset_size do 
@@ -82,9 +88,10 @@ function test()
 		net_seg = fcn_net:forward(test_image)
 		compute_hist(net_seg,true_seg)
 	end
-	prepare_metrics()
-	cal_pixel_accuracy()
+	epoch = 'test phase'
+	calculate_metrics()
 end
+
 -- run
 train()
 test()
