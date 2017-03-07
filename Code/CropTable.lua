@@ -15,16 +15,24 @@ end
 
 -- gradInput should be like {tensor1, tensor2}, where gradInput[1] should be the same size as input[1](scale back)
 function CropTable:updateGradInput(input, gradOutput)
-    leftPaddingSize = input[2]:size()
+    leftPaddingSize = gradOutput[1]:size()
     leftPaddingSize[self.axis] = self.offset - 1
 
 
-    rightPaddingSize = input[2]:size()
+    rightPaddingSize = gradOutput[1]:size()
     rightPaddingSize[self.axis] = input[1]:size()[self.axis] - input[2]:size()[self.axis] - self.offset + 1
 
     leftPadding = torch.zeros(leftPaddingSize)
     rightPadding = torch.zeros(rightPaddingSize)
+    print('--------------------')
+    print('leftPadding: '..(#leftPadding))
+    print('--------------------')
+    print('rightPadding: '..(#rightPadding))
+    print('--------------------')
+    print('gradOutput: '..(#gradOutput[1]))
+    print('--------------------')
+    print('axis: '..(self.axis))
 
-    self.gradInput = {torch.cat({leftPadding, gradOutput[1], rightPadding}, self.axis), gradOutput[2]}
+    self.gradInput = {torch.cat({leftPadding, gradOutput[1]:double(), rightPadding}, self.axis):cuda(), gradOutput[2]}
     return self.gradInput
 end

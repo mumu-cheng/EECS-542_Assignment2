@@ -34,8 +34,8 @@ function train()
 	fcn_net = fcn_net:cuda()
 	print(fcn_net)
 	-- criterion for loss
-	-- or SpatialSoftMax
-	criterion = cudnn.SpatialCrossEntropyCriterion() -- how to implement 'normalize: false'
+	-- or SpatialSoftMax or SpatialCrossEntropyCriterion
+	criterion = cudnn.SpatialSoftMax() -- how to implement 'normalize: false'
 	criterion = criterion:cuda()
 	-- start to train the net
 	params, gradParams = fcn_net:getParameters()
@@ -48,17 +48,17 @@ function train()
 				batchLabels = nn.utils.addSingletonDimension(trainset[iter][2],1):cuda()
 				local outputs = fcn_net:forward(batchInputs)
 				-- ignore_label: 255; pixels of 255 are not counted into loss function
-				outputs[batchLabels:eq(255)] = 255
+				-- outputs[batchLabels:eq(255)] = 255
 	      		local loss = criterion:forward(outputs, batchLabels)
 	      		local dloss_doutputs = criterion:backward(outputs, batchLabels)
 	      		fcn_net:backward(batchInputs, dloss_doutputs)
 	      		return loss, gradParams
 	   		end
 	   		_, batch_loss = optim.sgd(feval, params, optimState)
-	   		cur_loss = cur_loss + batch_loss[1]
 	   		-- save the preliminary model
-	   		torch.save('fcn8.t7', fcn_net)
-	   		break
+			torch.save('fcn8.t7', fcn_net)
+			break
+	   		cur_loss = cur_loss + batch_loss[1]
 	   	end
    		print('-----------------------------------------------------------')
    		print('epoch = ' .. epoch .. ',    current loss = ' .. current_loss)
