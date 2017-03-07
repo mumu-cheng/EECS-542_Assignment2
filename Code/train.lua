@@ -38,7 +38,7 @@ function train()
 	criterion = criterion:cuda()
 	-- start to train the net
 	params, gradParams = fcn_net:getParameters()
-
+	
 	for epoch = 1, config.max_epoch do
    		cur_loss = 0
    		for iter = 1, config.trainset_size do
