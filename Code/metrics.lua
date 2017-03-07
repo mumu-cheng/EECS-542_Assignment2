@@ -11,7 +11,10 @@ local hist = torch.zeros(n_cl,n_cl)
 function compute_hist(res, gtr)
 	for i = 1,res:size(1) do
 	   for j = 1,res:size(2) do
-	   	hist[gtr[i][j]][res[i][j]] = hist[gtr[i][j]][res[i][j]] + 1
+	   	if gtr[i][j] == 255 then
+	   	else 
+	   		hist[gtr[i][j]][res[i][j]] = hist[gtr[i][j]][res[i][j]] + 1
+	   	end
 	   end
 	end
 	return hist
@@ -32,7 +35,7 @@ function calculate_metrics()
 	local u = torch.add(torch.sum(hist,1),ti)
 	u:csub(torch.diag(hist))
 	-- frequency weighted
-	local fw = torch.div(toch.sum(torch.cmul(ti,mi)),t)
+	local fw = torch.div(toch.sum(torch.cmul(ti,ni)),t)
 	-- pixel accuracy
 	acc = torch.div(n,t)
 	print('>>>','epoch ', epoch,'pixel accuracy ',acc)
@@ -41,15 +44,13 @@ function calculate_metrics()
 	mean_acc = torch.sum(per_acc) / n_cl
 	print('>>>','epoch ', epoch,'mean accuracy ',mean_acc)
 	-- mean IU / per-class IU
-	iu = torch.cdiv(mi,u)
+	iu = torch.cdiv(ni,u)
 	mean_iu = torch.sum(iu) / n_cl
 	print('>>>','epoch ', epoch,'mean IU ',mean_iu)
 	-- frequency weighted IU
-	freq = torch.div(ti,t)
-	fk1 = torch.cmul(freq,torch.gt(freq,0))
-	fk2 = torch.cmul(iu,torch.gt(freq,0))
-	fk = torch.sum(torch.cmul(fk1,fk2))
-	fwiu = torch.cdiv(fw,fk)
+	num = torch.cmul(ti,ni)
+	det = torch.cdiv(num,u)
+	fwiu = torch.sum(det) / t
 	print('>>>','epoch ', epoch, 'frequency weighted IU', fwiu)
 end
 
