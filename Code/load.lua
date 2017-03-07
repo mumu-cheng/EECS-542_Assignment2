@@ -13,6 +13,7 @@ function preprocess(img)
     return new_img
 end
 
+data_dir = "../"
 
 -- Load image from the VOC2011 image sets
 
@@ -25,7 +26,7 @@ test_indices = {}
 trainset = {}
 valset = {}
 testset = {}
-local train_f = io.open("./VOC2011/ImageSets/Segmentation/train.txt")
+local train_f = io.open(data_dir.."VOC2011/ImageSets/Segmentation/train.txt")
 if train_f then
     for line in train_f:lines() do
         table.insert(train_indices, line)
@@ -36,8 +37,8 @@ end
 
 for i = 1, #train_indices do
     sample = {}
-    train_img_file = './VOC2011/JPEGImages/'..train_indices[i]..'.jpg';
-    label_file = './VOC2011/SegmentationClass/'..train_indices[i]..'.png'
+    train_img_file = data_dir..'VOC2011/JPEGImages/'..train_indices[i]..'.jpg';
+    label_file = data_dir..'VOC2011/SegmentationClass/'..train_indices[i]..'.png'
     local train_img = preprocess(image.load(train_img_file, 3, 'byte'))
     local label = image.load(label_file, 1, 'byte')
     table.insert(sample, train_img)
@@ -64,7 +65,7 @@ end
 
 
 -- load the validate set
-local val_f = io.open("./VOC2011/ImageSets/Segmentation/val.txt")
+local val_f = io.open(data_dir.."VOC2011/ImageSets/Segmentation/val.txt")
 if val_f then
     for line in val_f:lines() do
         table.insert(val_indices, line)
@@ -73,7 +74,7 @@ else
 end
 
 for i = 1, #val_indices do
-    val_img_file = './VOC2011/JPEGImages/'..val_indices[i]..'.jpg';
+    val_img_file = data_dir..'VOC2011/JPEGImages/'..val_indices[i]..'.jpg';
     local val_img = preprocess(image.load(val_img_file, 3, 'byte'))
     table.insert(valset, val_img)
 end
@@ -84,7 +85,7 @@ function valset:size()
 end
 
 -- load the test set
-local test_f = io.open("./VOC2011/ImageSets/Segmentation/test.txt")
+local test_f = io.open(data_dir.."VOC2011/ImageSets/Segmentation/test.txt")
 if test_f then
     for line in test_f:lines() do
         table.insert(test_indices, line)
@@ -93,7 +94,7 @@ else
 end
 
 for i = 1, #test_indices do
-    test_img_file = './VOC2011/JPEGImages/'..test_indices[i]..'.jpg';
+    test_img_file = data_dir..'VOC2011/JPEGImages/'..test_indices[i]..'.jpg';
     local test_img = preprocess(image.load(test_img_file, 3, 'byte'))
     table.insert(testset, test_img)
 end
