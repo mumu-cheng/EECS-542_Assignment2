@@ -2,3 +2,6 @@
 /VOCdevkit
 /VOC2011
 .DS_Store
+/Code/trainset.t7
+/Code/valset.t7
+/Code/testset.t7

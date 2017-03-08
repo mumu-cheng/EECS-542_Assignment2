@@ -27,7 +27,7 @@ function convert_label(label)
             new_label[1][i][j] = labelMap[channel1 * 255 * 255 + channel2 * 255 + channel3]
         end
     end
-    print(new_label)
+    -- print(new_label)
     return new_label
 end
 

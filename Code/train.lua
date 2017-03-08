@@ -6,7 +6,12 @@ require 'cudnn'
 require 'optim'
 
 -- load the data
-paths.dofile('load.lua')
+-- paths.dofile('load.lua')
+print('>>>> Start loading training dataset')
+trainset = torch.load('trainset.t7')
+print('>>>> Start loading validation dataset')
+valset = torch.load('valset.t7')
+print('>>>> Finish loading dataset')
 -- convert the data to cuda
 paths.dofile('convertDataToCuda.lua')
 convertdatatocuda()
@@ -116,4 +121,4 @@ end
 
 -- run
 train()
-test()
+-- test()
