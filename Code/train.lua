@@ -44,9 +44,9 @@ function train()
 	-- start to train the net
 	params, gradParams = fcn_net:getParameters()
 	for epoch = 1, config.max_epoch do
+		print('>>>> Starting to train epoch ' .. epoch)
    		cur_loss = 0
    		for iter = 1, config.trainset_size do
-   			print('here')
 	   		function feval(params)
 	      		gradParams:zero()
 				batchInputs = trainset[iter][1]
@@ -68,7 +68,6 @@ function train()
 	      		fcn_net:backward(batchInputs, dloss_doutputs)
 	      		return loss, gradParams
 	   		end
-	   		print('there')
 	   		optim.sgd(feval, params, optimState)
 	   		-- save the preliminary model
 			-- torch.save('fcn8.t7', fcn_net)
