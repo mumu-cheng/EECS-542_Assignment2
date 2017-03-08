@@ -55,8 +55,10 @@ function train()
    		for iter = 1, config.trainset_size do
 	   		function feval(params)
 	      		gradParams:zero()
-				batchInputs = trainset[iter][1]:cuda()
-				batchLabels = trainset[iter][2]:cuda()
+				batchInputs = trainset[iter][1]:clone() --:cuda()
+				batchLabels = trainset[iter][2]:clone()--:cuda()
+				batchInputs = batchInputs:cuda()
+				batchLabels = batchLabels:cuda()
 				-- batchLabels = nn.utils.addSingletonDimension(trainset[iter][2],1):cuda()
 				local outputs = fcn_net:forward(batchInputs)
 				-- ignore_label: 255; pixels of 255 are not counted into loss function
@@ -75,10 +77,10 @@ function train()
 	      		return loss, gradParams
 	   		end
 	   		_, loss = optim.sgd(feval, params, optimState)
+	   		print('>>>> iter = '.. iter.. ', per-image loss = '.. loss[1])
 	   		-- save the preliminary model
 			-- torch.save('fcn8.t7', fcn_net)
 	   		cur_loss = cur_loss + loss[1]
-	   		print('>>>> iter = '.. iter.. ', current loss = '.. cur_loss)
 	   		-- break
 	   	end
    		print('>>>> Epoch = '.. epoch.. ', current loss = '.. cur_loss)
