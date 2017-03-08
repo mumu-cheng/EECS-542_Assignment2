@@ -4,10 +4,6 @@ require 'paths'
 require 'cunn'
 require 'cudnn'
 require 'optim'
--- >>>>>>>> Problems to solve:
--- 1. Label values 1 - 21
--- 2. Val and Test dataset
-
 
 -- load the data
 paths.dofile('load.lua')
@@ -25,7 +21,7 @@ local optimState = {
 }
 -- hyperparameter
 local config = {
-	batch_size = 20,
+	batch_size = 1, -- online learning
 	max_epoch = 2, -- max number of epochs
 	trainset_size = trainset:size(),
 	valset_size = valset:size(),
@@ -48,18 +44,28 @@ function train()
 	for epoch = 1, config.max_epoch do
    		cur_loss = 0
    		for iter = 1, config.trainset_size do
+   			print('here')
 	   		function feval(params)
 	      		gradParams:zero()
 				batchInputs = trainset[iter][1]:cuda()
 				batchLabels = nn.utils.addSingletonDimension(trainset[iter][2],1):cuda()
 				local outputs = fcn_net:forward(batchInputs)
 				-- ignore_label: 255; pixels of 255 are not counted into loss function
-				outputs[batchLabels:eq(255)] = 255
+				if torch.max(batchLabels) == 255 then
+					idx = batchLabels:eq(255)
+					batchLabels[idx] = 1
+					outputs[1][1][idx] = 1
+					for j = 2,21 do
+						outputs[1][j][idx] = 0
+					end
+				end
+				-- calculate loss
 	      		local loss = criterion:forward(outputs, batchLabels)
 	      		local dloss_doutputs = criterion:backward(outputs, batchLabels)
 	      		fcn_net:backward(batchInputs, dloss_doutputs)
 	      		return loss, gradParams
 	   		end
+	   		print('there')
 	   		optim.sgd(feval, params, optimState)
 	   		-- save the preliminary model
 			-- torch.save('fcn8.t7', fcn_net)

@@ -112,7 +112,6 @@ for i = 1, #val_indices do
 end
 print("Finish loading")
 
-
 function valset:size()
     return #self
 end
@@ -143,5 +142,4 @@ function testset:size()
 end
 
 print("Finish loading data")
-
 
