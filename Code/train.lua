@@ -7,6 +7,7 @@ require 'optim'
 
 -- load the data
 paths.dofile('load.lua')
+print('>>>> Finish loading dataset')
 -- load the functions to calculate metrics 
 paths.dofile('metrics.lua')
 -- write the loss to a text file and read from there to plot the loss as training proceeds
@@ -31,7 +32,8 @@ local config = {
 -- load net module
 paths.dofile('fcn8.lua')
 fcn_net = fcn_net:cuda()
-print(fcn_net)
+print('>>>> Finish loading net and converting net to cuda')
+-- print(fcn_net)
 
 -- train 
 function train()
@@ -47,8 +49,9 @@ function train()
    			print('here')
 	   		function feval(params)
 	      		gradParams:zero()
-				batchInputs = trainset[iter][1]:cuda()
-				batchLabels = nn.utils.addSingletonDimension(trainset[iter][2],1):cuda()
+				batchInputs = trainset[iter][1]
+				batchLabels = trainset[iter][2]
+				-- batchLabels = nn.utils.addSingletonDimension(trainset[iter][2],1):cuda()
 				local outputs = fcn_net:forward(batchInputs)
 				-- ignore_label: 255; pixels of 255 are not counted into loss function
 				if torch.max(batchLabels) == 255 then
@@ -72,12 +75,11 @@ function train()
 			break
 	   		cur_loss = cur_loss + sum(loss)
 	   	end
-   		print('-----------------------------------------------------------')
-   		print('epoch = '.. epoch.. ',    current loss = '.. cur_loss)
+   		print('>>>> Epoch = '.. epoch.. '>>>> current loss = '.. cur_loss)
    		val()
    		-- write the loss since this epoch to the log
    		logger:add{epoch, current_loss, acc, mean_acc, mean_iu, fw_iu}
-   		logger:style{'+-','+-','+-','+-','+-','+-'}   		
+   		-- logger:style{'+-','+-','+-','+-','+-','+-'}   		
 		trainset:shuffle()
 	end
 	-- logger:plot() 
@@ -85,10 +87,10 @@ end
 
 -- validate
 function val()
+	print('>>>> Validation for epoch '.. epoch)
 	softmax_layer = nn.SpatialSoftMax()
 	for i = 1, config.valset_size do 
 		val_image = valset[i][1]:cuda()
-		print(#val_image)
 		true_seg = valset[i][2]:cuda()
 		net_seg = fcn_net:forward(val_image)
 		net_seg = softmax_layer:forward(net_seg)
