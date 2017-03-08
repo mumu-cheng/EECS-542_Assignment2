@@ -12,9 +12,9 @@ trainset = torch.load('trainset.t7')
 print('>>>> Start loading validation dataset')
 valset = torch.load('valset.t7')
 print('>>>> Finish loading dataset')
--- convert the data to cuda
-paths.dofile('convertDataToCuda.lua')
-convertdatatocuda()
+-- convert the data to cuda (more than 12.7 GB out of memery)
+-- paths.dofile('convertDataToCuda.lua')
+-- convertdatatocuda()
 -- load the functions to calculate metrics 
 paths.dofile('metrics.lua')
 -- write the loss to a text file and read from there to plot the loss as training proceeds
@@ -33,7 +33,7 @@ local config = {
 	max_epoch = 2, -- max number of epochs
 	trainset_size = trainset:size(),
 	valset_size = valset:size(),
-	testset_size = testset:size()
+	-- testset_size = testset:size()
 }
 
 -- load net module
@@ -56,8 +56,8 @@ function train()
    		for iter = 1, config.trainset_size do
 	   		function feval(params)
 	      		gradParams:zero()
-				batchInputs = trainset[iter][1]
-				batchLabels = trainset[iter][2]
+				batchInputs = trainset[iter][1]:cuda()
+				batchLabels = trainset[iter][2]:cuda()
 				-- batchLabels = nn.utils.addSingletonDimension(trainset[iter][2],1):cuda()
 				local outputs = fcn_net:forward(batchInputs)
 				-- ignore_label: 255; pixels of 255 are not counted into loss function
@@ -75,14 +75,14 @@ function train()
 	      		fcn_net:backward(batchInputs, dloss_doutputs)
 	      		return loss, gradParams
 	   		end
-	   		optim.sgd(feval, params, optimState)
+	   		_, loss = optim.sgd(feval, params, optimState)
 	   		-- save the preliminary model
 			-- torch.save('fcn8.t7', fcn_net)
-			break
-	   		cur_loss = cur_loss + sum(loss)
+	   		cur_loss = cur_loss + torch.sum(loss[1])
+	   		break
 	   	end
-   		print('>>>> Epoch = '.. epoch.. '>>>> current loss = '.. cur_loss)
-   		val()
+   		print('>>>> Epoch = '.. epoch.. '  >>>> current loss = '.. cur_loss)
+   		-- val(epoch)
    		-- write the loss since this epoch to the log
    		logger:add{epoch, current_loss, acc, mean_acc, mean_iu, fw_iu}
    		-- logger:style{'+-','+-','+-','+-','+-','+-'}   		
@@ -92,22 +92,25 @@ function train()
 end
 
 -- validate
-function val()
+function val(epoch)
 	print('>>>> Validation for epoch '.. epoch)
-	softmax_layer = nn.SpatialSoftMax()
+	softmax_layer = nn.SpatialSoftMax():cuda()
 	for i = 1, config.valset_size do 
 		val_image = valset[i][1]:cuda()
 		true_seg = valset[i][2]:cuda()
 		net_seg = fcn_net:forward(val_image)
 		net_seg = softmax_layer:forward(net_seg)
+		_, net_seg = torch.max(net_seg,2)
+		net_seg = net_seg:squeeze()
+		true_seg = true_seg:squeeze()
 		compute_hist(net_seg,true_seg) 
 	end
 	calculate_metrics()
 end
 
--- test
+-- test(need to modify)
 function test()
-	softmax_layer = nn.SpatialSoftMax()
+	softmax_layer = nn.SpatialSoftMax():cuda()
 	for i = 1, config.testset_size do 
 		test_image = testset[i][1]:cuda()
 		true_seg = testset[i][2]:cuda()

@@ -1,10 +1,10 @@
 -- functions to calculate all four metrics
 
-local n_cl = 21 -- the number of class
+n_cl = 21 -- the number of class
 
 -- hist is a n_cl*n_cl tensor
 -- hist[i][j] is the number of pixels of class i predicted to belong to class j 
-local hist = torch.zeros(n_cl,n_cl)
+hist = torch.zeros(n_cl,n_cl)
 
 -- res is the result label image we get (HxW)
 -- gtr is the ground_truth label image (HxW)
