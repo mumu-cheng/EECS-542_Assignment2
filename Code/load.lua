@@ -27,6 +27,7 @@ function convert_label(label)
             new_label[1][i][j] = labelMap[channel1 * 255 * 255 + channel2 * 255 + channel3]
         end
     end
+    print(new_label)
     return new_label
 end
 
@@ -34,7 +35,6 @@ data_dir = "../"
 
 -- Load image from the VOC2011 image sets
 
--- Load the train set
 require 'image'
 
 print("Start loading data...")
@@ -45,101 +45,119 @@ test_indices = {}
 trainset = {}
 valset = {}
 testset = {}
-local train_f = io.open(data_dir.."VOC2011/ImageSets/Segmentation/train.txt")
-if train_f then
-    for line in train_f:lines() do
-        table.insert(train_indices, line)
-    end
-else
-end
 
+-- load the train set
 print("Loading train data...")
-for i = 1, #train_indices do
-    if (i % 10 == 0) then
-        print("Progress: "..tostring(math.floor(i * 100/#train_indices)).."%")
+
+if paths.filep('trainset.t7') then
+    trainset = torch.load('trainset.t7')
+else
+    local train_f = io.open(data_dir.."VOC2011/ImageSets/Segmentation/train.txt")
+    if train_f then
+        for line in train_f:lines() do
+            table.insert(train_indices, line)
+        end
+    else
     end
-    sample = {}
-    train_img_file = data_dir..'VOC2011/JPEGImages/'..train_indices[i]..'.jpg';
-    label_file = data_dir..'VOC2011/SegmentationClass/'..train_indices[i]..'.png'
-    local train_img = preprocess(image.load(train_img_file, 3, 'byte'))
-    local label = convert_label(image.load(label_file, 3, 'byte'))
-    table.insert(sample, train_img)
-    table.insert(sample, label)
-    table.insert(trainset, sample)
+
+
+    for i = 1, #train_indices do
+        if (i % 10 == 0) then
+            print("Progress: "..tostring(math.floor(i * 100/#train_indices)).."%")
+        end
+        sample = {}
+        train_img_file = data_dir..'VOC2011/JPEGImages/'..train_indices[i]..'.jpg';
+        label_file = data_dir..'VOC2011/SegmentationClass/'..train_indices[i]..'.png'
+        local train_img = preprocess(image.load(train_img_file, 3, 'byte'))
+        local label = convert_label(image.load(label_file, 3, 'byte'))
+        table.insert(sample, train_img)
+        table.insert(sample, label)
+        table.insert(trainset, sample)
+    end
+
+    function trainset:size()
+        return #self
+    end
+
+    function swap(array, index1, index2)
+        array[index1], array[index2] = array[index2], array[index1]
+    end
+
+    function trainset:shuffle()
+        local counter = trainset:size()
+        while counter > 1 do
+            local index = math.random(counter)
+            swap(trainset, index, counter)
+            counter = counter - 1
+        end
+    end
+    torch.save('trainset.t7', trainset)
 end
 print("Finish loading")
-
-function trainset:size()
-    return #self
-end
-
-function swap(array, index1, index2)
-    array[index1], array[index2] = array[index2], array[index1]
-end
-
-function trainset:shuffle()
-    local counter = trainset:size()
-    while counter > 1 do
-        local index = math.random(counter)
-        swap(trainset, index, counter)
-        counter = counter - 1
-    end
-end
-
 
 -- load the validate set
-local val_f = io.open(data_dir.."VOC2011/ImageSets/Segmentation/val.txt")
-if val_f then
-    for line in val_f:lines() do
-        table.insert(val_indices, line)
-    end
+if paths.filep('valset.t7') then
+    valset = torch.load('valset.t7')
 else
-end
-
-print("Loading validation data...")
-for i = 1, #val_indices do
-    if (i % 10 == 0) then
-        print("Progress: "..tostring(math.floor(i * 100/#val_indices)).."%")
+    local val_f = io.open(data_dir.."VOC2011/ImageSets/Segmentation/val.txt")
+    if val_f then
+        for line in val_f:lines() do
+            table.insert(val_indices, line)
+        end
+    else
     end
-    sample = {}
-    val_img_file = data_dir..'VOC2011/JPEGImages/'..val_indices[i]..'.jpg';
-    val_label_file = data_dir..'VOC2011/SegmentationClass/'..val_indices[i]..'.png'
-    local val_img = preprocess(image.load(val_img_file, 3, 'byte'))
-    local label = convert_label(image.load(val_label_file, 3, 'byte'))
-    table.insert(sample, val_img)
-    table.insert(sample, label)
-    table.insert(valset, sample)
+
+    print("Loading validation data...")
+    for i = 1, #val_indices do
+        if (i % 10 == 0) then
+            print("Progress: "..tostring(math.floor(i * 100/#val_indices)).."%")
+        end
+        sample = {}
+        val_img_file = data_dir..'VOC2011/JPEGImages/'..val_indices[i]..'.jpg';
+        val_label_file = data_dir..'VOC2011/SegmentationClass/'..val_indices[i]..'.png'
+        local val_img = preprocess(image.load(val_img_file, 3, 'byte'))
+        local label = convert_label(image.load(val_label_file, 3, 'byte'))
+        table.insert(sample, val_img)
+        table.insert(sample, label)
+        table.insert(valset, sample)
+    end
+
+    function valset:size()
+        return #self
+    end
+
+    torch.save('valset.t7', valset)
 end
 print("Finish loading")
-
-function valset:size()
-    return #self
-end
 
 -- load the test set
-local test_f = io.open(data_dir.."VOC2011/ImageSets/Segmentation/test.txt")
-if test_f then
-    for line in test_f:lines() do
-        table.insert(test_indices, line)
-    end
+if paths.filep('testset.t7') then
+    testset = torch.load('testset.t7')
 else
-end
-
-print("Loading test data...")
-for i = 1, #test_indices do
-    if (i % 10 == 0) then
-        print("Progress: "..tostring(math.floor(i * 100/#test_indices)).."%")
+    local test_f = io.open(data_dir.."VOC2011/ImageSets/Segmentation/test.txt")
+    if test_f then
+        for line in test_f:lines() do
+            table.insert(test_indices, line)
+        end
+    else
     end
-    test_img_file = data_dir..'VOC2011/JPEGImages/'..test_indices[i]..'.jpg';
-    local test_img = preprocess(image.load(test_img_file, 3, 'byte'))
-    table.insert(testset, test_img)
+
+    print("Loading test data...")
+    for i = 1, #test_indices do
+        if (i % 10 == 0) then
+            print("Progress: "..tostring(math.floor(i * 100/#test_indices)).."%")
+        end
+        test_img_file = data_dir..'VOC2011/JPEGImages/'..test_indices[i]..'.jpg';
+        local test_img = preprocess(image.load(test_img_file, 3, 'byte'))
+        table.insert(testset, test_img)
+    end
+    print("Finish loading")
+
+
+    function testset:size()
+        return #self
+    end
+    torch.save('testset.t7', testset)
 end
-print("Finish loading")
-
-
-function testset:size()
-    return #self
-end
-
 print("Finish loading data")
 
