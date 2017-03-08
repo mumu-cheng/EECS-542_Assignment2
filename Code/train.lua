@@ -21,7 +21,7 @@ local optimState = {
 }
 -- hyperparameter
 local config = {
-	batch_size = 20,
+	batch_size = 1, -- online learning
 	max_epoch = 2, -- max number of epochs
 	trainset_size = trainset:size(),
 	valset_size = valset:size(),
@@ -51,11 +51,13 @@ function train()
 				batchLabels = nn.utils.addSingletonDimension(trainset[iter][2],1):cuda()
 				local outputs = fcn_net:forward(batchInputs)
 				-- ignore_label: 255; pixels of 255 are not counted into loss function
-				idx = batchLabels:eq(255)
-				batchLabels[idx] = 1
-				outputs[1][1][idx] = 1
-				for j = 2,21 do
-					outputs[1][j][idx] = 0
+				if torch.max(batchLabels) == 255 then
+					idx = batchLabels:eq(255)
+					batchLabels[idx] = 1
+					outputs[1][1][idx] = 1
+					for j = 2,21 do
+						outputs[1][j][idx] = 0
+					end
 				end
 				-- calculate loss
 	      		local loss = criterion:forward(outputs, batchLabels)

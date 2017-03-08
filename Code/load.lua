@@ -79,7 +79,6 @@ for i = 1, #val_indices do
     table.insert(valset, val_img)
 end
 
-
 function valset:size()
     return #self
 end
