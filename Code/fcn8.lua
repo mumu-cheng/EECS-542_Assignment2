@@ -142,6 +142,7 @@ fcn_net:add(nn.CropTable(3, 32))
 fcn_net:add(nn.SelectTable(1))
 fcn_net:add(nn.Unsqueeze(1))
 fcn_net:add(nn.Contiguous())
+-- fcn_net:add(nn.SpatialSoftMax())
 -- convert the net to cudnn
 -- cudnn.convert(fcn_net, cudnn)
 
