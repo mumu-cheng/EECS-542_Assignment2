@@ -74,12 +74,10 @@ function train()
 	      		fcn_net:backward(batchInputs, dloss_doutputs)
 	      		return loss, gradParams
 	   		end
-	   		-- print(#loss)
 	   		_, loss = optim.sgd(feval, params, optimState)
-	   		-- print(#loss)
 	   		-- save the preliminary model
 			-- torch.save('fcn8.t7', fcn_net)
-	   		cur_loss = cur_loss + loss
+	   		cur_loss = cur_loss + loss[1]
 	   		print('>>>> iter = '.. iter.. ', current loss = '.. cur_loss)
 	   		-- break
 	   	end
