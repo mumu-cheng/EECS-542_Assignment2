@@ -9,6 +9,7 @@ require 'optim'
 paths.dofile('load.lua')
 -- convert the data to cuda
 paths.dofile('convertDataToCuda.lua')
+convertdatatocuda()
 -- load the functions to calculate metrics 
 paths.dofile('metrics.lua')
 -- write the loss to a text file and read from there to plot the loss as training proceeds
