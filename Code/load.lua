@@ -18,13 +18,13 @@ paths.dofile('getLabelMap.lua')
 function convert_label(label)
     local height = label:size()[2]
     local width = label:size()[3]
-    new_label = torch.zeros(height, width)
+    new_label = torch.zeros(1, height, width)
     for i = 1, height do
         for j = 1, width do
             local channel1 = label[1][i][j]
             local channel2 = label[2][i][j]
             local channel3 = label[3][i][j]
-            new_label[i][j] = labelMap[channel1 * 255 * 255 + channel2 * 255 + channel3]
+            new_label[1][i][j] = labelMap[channel1 * 255 * 255 + channel2 * 255 + channel3]
         end
     end
     return new_label
