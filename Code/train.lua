@@ -8,9 +8,9 @@ require 'optim'
 -- load the data
 -- paths.dofile('load.lua')
 print('>>>> Start loading training dataset')
-trainset = torch.load('trainset.t7')
+trainset = torch.load('../Datasett7/trainset.t7')
 print('>>>> Start loading validation dataset')
-valset = torch.load('valset.t7')
+valset = torch.load('../Datasett7/valset.t7')
 print('>>>> Finish loading dataset')
 -- convert the data to cuda (more than 12.7 GB out of memery)
 -- paths.dofile('convertDataToCuda.lua')
