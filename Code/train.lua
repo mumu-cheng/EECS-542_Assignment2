@@ -45,13 +45,12 @@ print('>>>> Finish loading net and converting net to cuda')
 -- train 
 function train()
 	-- criterion for loss
-	-- or SpatialSoftMax or SpatialCrossEntropyCriterion
-	criterion = cudnn.SpatialSoftMax() -- how to implement 'normalize: false'
+	criterion = cudnn.SpatialCrossEntropyCriterion() -- how to implement 'normalize: false'
 	criterion = criterion:cuda()
 	-- start to train the net
 	params, gradParams = fcn_net:getParameters()
 	for epoch = 1, config.max_epoch do
-		print('>>>> Starting to train epoch ' .. epoch)
+		print('>>>> Starting to train epoch ' .. epoch .. ':')
    		cur_loss = 0
    		for iter = 1, config.trainset_size do
 	   		function feval(params)
@@ -75,13 +74,16 @@ function train()
 	      		fcn_net:backward(batchInputs, dloss_doutputs)
 	      		return loss, gradParams
 	   		end
+	   		-- print(#loss)
 	   		_, loss = optim.sgd(feval, params, optimState)
+	   		-- print(#loss)
 	   		-- save the preliminary model
 			-- torch.save('fcn8.t7', fcn_net)
-	   		cur_loss = cur_loss + torch.sum(loss[1])
-	   		break
+	   		cur_loss = cur_loss + loss
+	   		print('>>>> iter = '.. iter.. ', current loss = '.. cur_loss)
+	   		-- break
 	   	end
-   		print('>>>> Epoch = '.. epoch.. '  >>>> current loss = '.. cur_loss)
+   		print('>>>> Epoch = '.. epoch.. ', current loss = '.. cur_loss)
    		-- val(epoch)
    		-- write the loss since this epoch to the log
    		logger:add{epoch, current_loss, acc, mean_acc, mean_iu, fw_iu}
