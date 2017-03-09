@@ -1,6 +1,7 @@
 import os
 import numpy as np
 import random
+import pdb
 
 from PIL import Image
 
@@ -13,28 +14,36 @@ class voc_reader:
                         'pottedplant', 'sheep', 'sofa', 'train', 'tvmonitor']
         self.batch_offset = 0
         self.mode = mode
+        self.__load_data()
 
-    def load_image(self, idx):
+    def __load_image(self, idx):
         im = Image.open('{}/JPEGImages/{}.jpg'.format(self.dir, idx))
-        im = im[np.newaxis, ...]
-        return im
+        im = np.array(im.getdata()).astype(np.float32).reshape((im.size[0],im.size[1],3))
+	im = im[np.newaxis, ...]
+	return im
 
-    def load_label(self, idx):
+    def __load_label(self, idx):
         label = Image.open('{}/SegmentationClass/{}.png'.format(self.dir, idx))
         label = np.array(label, dtype=np.uint8)
         label = label[np.newaxis, ...]
-        return label
+        label = label[..., np.newaxis]
+	return label
 
-    def load_data(self):
+    def __load_data(self):
         # read in indices of training instances
-        indices_file = '{}/ImageSets/Segmentation/{}.txt'.format(self.dir, mode)
+        indices_file = '{}/ImageSets/Segmentation/{}.txt'.format(self.dir, self.mode)
         self.data_indices = open(indices_file, 'r').read().splitlines()
 
         self.images = []
         self.labels = []
+        cnt = 1
         for idx in self.data_indices:
-            self.images.append(self.load_image(self, idx))
-            self.labels.append(self.load_label(self, idx))
+            if cnt % 100 == 0:
+                print 'progress: {}/{}'.format(cnt, len(self.data_indices))
+            	break
+	    self.images.append(self.__load_image(idx))
+            self.labels.append(self.__load_label(idx))
+            cnt = cnt + 1
 
         self.MAX_BATCHSIZE = len(self.images)
         return

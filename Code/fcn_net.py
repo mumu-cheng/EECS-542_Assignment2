@@ -18,8 +18,7 @@ tf.flags.DEFINE_string("model_dir", "../models/", "Path to pre-trained vgg model
 tf.flags.DEFINE_float("learning_rate", "1e-4", "Learning rate for Adam Optimizer (same as in the paper)")
 tf.flags.DEFINE_string('mode', "train", "Mode train/ test/ visualize")
 
-MAX_EPOCHS = int(50)
-MAX_ITERS  = int(1000)
+MAX_ITERATION = int(50000)
 
 # a forward pass in vgg net
 def vgg_net(weights, image):
@@ -129,80 +128,83 @@ def train(loss_val, var_list):
 
 def main(argv=None):
 
-    with tf.device("/gpu:0"):
-        # load pre-trained and cached vgg net file
-        model_data = utils.load_vgg_model(FLAGS.model_dir, 'imagenet-vgg-verydeep-19.mat')
+    # load pre-trained and cached vgg net file
+    model_data = utils.load_vgg_model(FLAGS.model_dir, 'imagenet-vgg-verydeep-19.mat')
         
-        # create placeholder for data and labels (note that the shape is subject to variation)
-        image      = tf.placeholder(tf.float32, shape=[1, None, None, 3], name="input_image")
-        annotation = tf.placeholder(tf.int32,   shape=[1, None, None, 1], name="annotation")
+    # create placeholder for data and labels (note that the shape is subject to variation)
+    image      = tf.placeholder(tf.float32, shape=[1, None, None, 3], name="input_image")
+    annotation = tf.placeholder(tf.int32,   shape=[1, None, None, 1], name="annotation")
 
-        # forward pass (inference())
-        pred_annotation, logits = inference(image, model_data)
-        tf.summary.image("input_image", image, max_outputs=2)
-        tf.summary.image("ground_truth", tf.cast(annotation, tf.uint8), max_outputs=2)
-        tf.summary.image("pred_annotation", tf.cast(pred_annotation, tf.uint8), max_outputs=2)
+    # forward pass (inference())
+    pred_annotation, logits = inference(image, model_data)
+        
+    '''
+    tf.summary.image("input_image", image, max_outputs=2)
+    tf.summary.image("ground_truth", tf.cast(annotation, tf.uint8), max_outputs=2)
+    tf.summary.image("pred_annotation", tf.cast(pred_annotation, tf.uint8), max_outputs=2)
+    '''
+	
+    # compute the loss (loss())
+    loss = tf.reduce_mean((tf.nn.sparse_softmax_cross_entropy_with_logits(logits,
+                                                                          tf.squeeze(annotation, squeeze_dims=[3]),
+                                                                          name="entropy")))
+    # training (train())
+    '''
+    tf.summary.scalar("entropy", loss)
+    '''
+    trainable_var = tf.trainable_variables()
+    train_op = train(loss, trainable_var)
 
-        # compute the loss (loss())
-        loss = tf.reduce_mean((tf.nn.sparse_softmax_cross_entropy_with_logits(logits,
-                                                                              tf.squeeze(annotation, squeeze_dims=[3]),
-                                                                              name="entropy")))
-        # training (train())
-        tf.summary.scalar("entropy", loss)
-        trainable_var = tf.trainable_variables()
-        train_op = train(loss, trainable_var)
+    print("Setting up summary op...")
+    summary_op = tf.summary.merge_all()
 
-        print("Setting up summary op...")
-        summary_op = tf.summary.merge_all()
-
-        print("Loading training and validation dataset...")
-        if FLAGS.mode == 'train':
-            train_data = dataset.voc_reader(FLAGS.data_dir, 'train')
-        val_data = dataset.voc_reader(FLAGS.data_dir, 'val')
+    print("Loading training and validation dataset...")
+    if FLAGS.mode == 'train':
+        train_data = dataset.voc_reader(FLAGS.data_dir, 'train')
+    val_data = dataset.voc_reader(FLAGS.data_dir, 'val')
 
     # all of the build preparation has been completed and all of the necessary ops generated
     # create a session to run the graph
-    with tf.Session() as sess:
-        sess = tf.Session()
+    sess = tf.Session(config=tf.ConfigProto(log_device_placement=True))
 
-        print("Setting up Saver...")
-        saver = tf.train.Saver()
-        summary_writer = tf.summary.FileWriter(FLAGS.logs_dir, sess.graph)
+    print("Setting up Saver...")
+    saver = tf.train.Saver()
+    summary_writer = tf.summary.FileWriter(FLAGS.logs_dir, sess.graph)
 
-        sess.run(tf.initialize_all_variables())
+    sess.run(tf.initialize_all_variables())
 
-        # checkpoint of training process
-        ckpt = tf.train.get_checkpoint_state(FLAGS.logs_dir)
-        if ckpt and ckpt.model_checkpoint_path:
-            saver.restore(sess, ckpt.model_checkpoint_path)
-            print("Model restored...")
+    # checkpoint of training process
+    ckpt = tf.train.get_checkpoint_state(FLAGS.logs_dir)
+    if ckpt and ckpt.model_checkpoint_path:
+        saver.restore(sess, ckpt.model_checkpoint_path)
+        print("Model restored...")
 
-        if FLAGS.mode == "train":
-            for itr in xrange(MAX_ITERATION):
-                # read in next training batch and feed it into net
-                train_images, train_labels = train_data.get_next_pair()
+    if FLAGS.mode == "train":
+        for itr in xrange(MAX_ITERATION):
+            # read in next training batch and feed it into net
+            train_images, train_labels = train_data.get_next_pair()
+            
+            # preprocess the image by subtracting the mean value
+            train_images[:,:,:,0] -= 104.00698793
+            train_images[:,:,:,1] -= 116.66876762
+            train_images[:,:,:,2] -= 122.67891434
                 
-		# preprocess the image by subtracting the mean value
-                image[1] -= 104.00698793
-                image[2] -= 116.66876762
-                image[3] -= 122.67891434
-                
-		sess.run(train_op, feed_dict={image: train_images, annotation: train_labels})
+	    sess.run(train_op, feed_dict={image: train_images, annotation: train_labels})
 
-                if itr % 50 == 0:
-                    train_loss, summary_str = sess.run([loss, summary_op], feed_dict=feed_dict)
+            if itr % 50 == 0:
+                train_loss, summary_str = sess.run([loss, summary_op], feed_dict={image: train_images, annotation: train_labels})
                     
-                    # save training result
-                    print("Step: %d, Train_loss:%g" % (itr, train_loss))
-                    summary_writer.add_summary(summary_str, itr)
+                # save training result
+                print("Step: %d, Train_loss:%g" % (itr, train_loss))
+                summary_writer.add_summary(summary_str, itr)
 
-                if itr % 2000 == 0:
-                    valid_images, valid_labels = val_data.get_next_pair()
-                    valid_loss = sess.run(loss, feed_dict={image: valid_images, annotation: valid_labels})
+            if itr % 2000 == 0:
+                valid_images, valid_labels = val_data.get_next_pair()
+                valid_loss = sess.run(loss, feed_dict={image: valid_images, annotation: valid_labels})
                     
-                    # save validation result and model snapshot
-                    print("%s ---> Validation_loss: %g" % (datetime.datetime.now(), valid_loss))
-                    saver.save(sess, FLAGS.logs_dir + "model.ckpt", itr)
+                # save validation result and model snapshot
+                print("%s ---> Validation_loss: %g" % (datetime.datetime.now(), valid_loss))
+                saver.save(sess, FLAGS.logs_dir + "model.ckpt", itr)
 
     '''
     elif FLAGS.mode == "visualize":
