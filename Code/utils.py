@@ -27,6 +27,11 @@ def bias_variable(shape, name=None):
     else:
         return tf.get_variable(name, initializer=initial)
 
+def get_variable(weights, name):
+    init = tf.constant_initializer(weights, dtype=tf.float32)
+    var = tf.get_variable(name=name, initializer=init,  shape=weights.shape)
+    return var
+
 def conv2d_basic(x, W, bias):
     conv = tf.nn.conv2d(x, W, strides=[1, 1, 1, 1], padding="SAME")
     return tf.nn.bias_add(conv, bias)

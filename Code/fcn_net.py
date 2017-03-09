@@ -1,6 +1,7 @@
 from __future__ import print_function
 import tensorflow as tf
 import numpy as np
+import pdb
 
 import utils
 import read_MITSceneParsingData as scene_parsing
@@ -43,13 +44,13 @@ def vgg_net(weights, image):
             # tensorflow: weights are [height, width, in_channels, out_channels]
             kernels  = utils.get_variable(np.transpose(kernels, (1, 0, 2, 3)), name=name + "_w")
             bias     = utils.get_variable(bias.reshape(-1), name=name + "_b")
-            cur_data = utils.conv2d_basic(current, kernels, bias)
+            cur_data = utils.conv2d_basic(cur_data, kernels, bias)
         
         elif layer_type == 'relu':
-            cur_data = tf.nn.relu(current, name=name)
+            cur_data = tf.nn.relu(cur_data, name=name)
 
         elif layer_type == 'pool':
-            cur_data = utils.max_pool_2x2(current)
+            cur_data = utils.max_pool_2x2(cur_data)
         
         net[name] = cur_data
 
@@ -59,16 +60,11 @@ def vgg_net(weights, image):
 def inference(image, model_data):
     print("setting up vgg initialized conv layers ...")
     
-    # preprocess the image by subtracting the mean value
-    mean_pixel = np.array([104.00698793, 116.66876762, 122.67891434])
-    mean_pixel = mean_pixel.astype(image.dtype)
-    image = image - mean_pixel;
-
     weights = np.squeeze(model_data['layers'])
     with tf.variable_scope("inference"):
 
         # obtain the forward result of each layer in vgg
-        image_net = vgg_net(weights, processed_image)
+        image_net = vgg_net(weights, image)
         conv5 = image_net["conv5_3"]
         pool5 = utils.max_pool_2x2(conv5)
 
@@ -185,8 +181,13 @@ def main(argv=None):
             for itr in xrange(MAX_ITERATION):
                 # read in next training batch and feed it into net
                 train_images, train_labels = train_data.get_next_pair()
-
-                sess.run(train_op, feed_dict={image: train_images, annotation: train_labels})
+                
+		# preprocess the image by subtracting the mean value
+                image[1] -= 104.00698793
+                image[2] -= 116.66876762
+                image[3] -= 122.67891434
+                
+		sess.run(train_op, feed_dict={image: train_images, annotation: train_labels})
 
                 if itr % 50 == 0:
                     train_loss, summary_str = sess.run([loss, summary_op], feed_dict=feed_dict)
