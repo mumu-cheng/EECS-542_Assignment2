@@ -49,8 +49,8 @@ testset = {}
 -- load the train set
 print("Loading train data...")
 
-if paths.filep('trainset.t7') then
-    trainset = torch.load('trainset.t7')
+if paths.filep('../Datasett7/trainset.t7') then
+    trainset = torch.load('../Datasett7/trainset.t7')
 else
     local train_f = io.open(data_dir.."VOC2011/ImageSets/Segmentation/train.txt")
     if train_f then
@@ -91,13 +91,13 @@ else
             counter = counter - 1
         end
     end
-    torch.save('trainset.t7', trainset)
+    torch.save('../Datasett7/trainset.t7', trainset)
 end
 print("Finish loading")
 
 -- load the validate set
-if paths.filep('valset.t7') then
-    valset = torch.load('valset.t7')
+if paths.filep('../Datasett7/valset.t7') then
+    valset = torch.load('../Datasett7/valset.t7')
 else
     local val_f = io.open(data_dir.."VOC2011/ImageSets/Segmentation/val.txt")
     if val_f then
@@ -126,13 +126,13 @@ else
         return #self
     end
 
-    torch.save('valset.t7', valset)
+    torch.save('../Datasett7/valset.t7', valset)
 end
 print("Finish loading")
 
 -- load the test set
-if paths.filep('testset.t7') then
-    testset = torch.load('testset.t7')
+if paths.filep('../Datasett7/testset.t7') then
+    testset = torch.load('../Datasett7/testset.t7')
 else
     local test_f = io.open(data_dir.."VOC2011/ImageSets/Segmentation/test.txt")
     if test_f then
@@ -157,7 +157,7 @@ else
     function testset:size()
         return #self
     end
-    torch.save('testset.t7', testset)
+    torch.save('../Datasett7/testset.t7', testset)
 end
 print("Finish loading data")
 
