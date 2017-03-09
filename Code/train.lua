@@ -10,7 +10,7 @@ require 'optim'
 print('>>>> Start loading training dataset')
 trainset = torch.load('../Datasett7/trainset.t7')
 print('>>>> Start loading validation dataset')
-valset = torch.load('../Datasett7/valset.t7')
+-- valset = torch.load('../Datasett7/valset.t7')
 print('>>>> Finish loading dataset')
 -- convert the data to cuda (more than 12.7 GB out of memery)
 -- paths.dofile('convertDataToCuda.lua')
@@ -32,7 +32,7 @@ local config = {
 	batch_size = 1, -- online learning
 	max_epoch = 2, -- max number of epochs
 	trainset_size = trainset:size(),
-	valset_size = valset:size(),
+	-- valset_size = valset:size(),
 	-- testset_size = testset:size()
 }
 
@@ -54,17 +54,19 @@ function train()
    		cur_loss = 0
    		for iter = 1, config.trainset_size do
 	   		function feval(params)
-	      		gradParams:zero()
-				batchInputs = trainset[iter][1]:clone() --:cuda()
-				batchLabels = trainset[iter][2]:clone()--:cuda()
-				batchInputs = batchInputs:cuda()
-				batchLabels = batchLabels:cuda()
+	   			fcn_net:zeroGradParameters()
+	      		-- gradParams:zero()
+				local batchInputs = trainset[iter][1]:clone():cuda()
+				local batchLabels = trainset[iter][2]:clone():cuda()
+				-- batchInputs = batchInputs:cuda()
+				-- batchLabels = batchLabels:cuda()
 				-- batchLabels = nn.utils.addSingletonDimension(trainset[iter][2],1):cuda()
 				local outputs = fcn_net:forward(batchInputs)
 				-- ignore_label: 255; pixels of 255 are not counted into loss function
 				if torch.max(batchLabels) == 255 then
-					idx = batchLabels:eq(255)
+					local idx = batchLabels:eq(255)
 					batchLabels[idx] = 1
+					-- idx = idx:squeeze()
 					outputs[1][1][idx] = 1
 					for j = 2,21 do
 						outputs[1][j][idx] = 0
