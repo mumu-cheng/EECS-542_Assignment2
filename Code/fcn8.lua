@@ -87,8 +87,7 @@ layer_stack_1:add(nn.ConcatTable()
                 :add(layer_stack_2))
 
 --score_pool4c(crop score_pool4 to upscore2)
-layer_stack_1:add(nn.CropTable(2, 6))
-layer_stack_1:add(nn.CropTable(3, 6))
+layer_stack_1:add(nn.CropTable({2, 3}, {6, 6}))
 
 layer_stack_1:add(nn.CAddTable())
 --upscore_l4(upscore_pool4)
@@ -124,10 +123,8 @@ layer_stack_0:add(nn.ConcatTable()
             :add(layer_stack_1))
 
 --score_pool3c(crop score_pool3 to upscore_pool4)
-layer_stack_0:add(nn.CropTable(2, 10))
-layer_stack_0:add(nn.CropTable(3, 10))
-layer_stack_0:add(nn.CAddTable())
-
+layer_stack_0:add(nn.CropTable({2, 3}, {10, 10}))
+layer_stack_0:add(nn.CAddTable(true))
 
 --upscore8
 layer_stack_0:add(nn.SpatialFullConvolution(21,21,16,16,8,8,0,0,0,0):noBias())
@@ -136,8 +133,7 @@ fcn_net:add(nn.ConcatTable()
             :add(layer_stack_0)
             :add(layer_stack_5))
 
-fcn_net:add(nn.CropTable(2, 32))
-fcn_net:add(nn.CropTable(3, 32))
+fcn_net:add(nn.CropTable({2, 3}, {32, 32}))
 fcn_net:add(nn.SelectTable(1))
 fcn_net:add(nn.Unsqueeze(1))
 fcn_net:add(nn.Contiguous())
