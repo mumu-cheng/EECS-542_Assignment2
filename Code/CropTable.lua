@@ -36,7 +36,7 @@ function CropTable:updateGradInput(input, gradOutput)
             gradInput1 = torch.cat({leftPadding, gradInput1, rightPadding}, self.axis_array[i])
         end
     end
-    -- self.gradInput = {gradInput1:cuda(), gradOutput[2]:cuda()}
-    self.gradInput = {gradInput1, gradOutput[2]}
+    self.gradInput = {gradInput1:cuda(), gradOutput[2]:cuda()}
+    -- self.gradInput = {gradInput1, gradOutput[2]}
     return self.gradInput
 end

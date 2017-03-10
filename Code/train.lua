@@ -57,10 +57,11 @@ function train()
    		cur_loss = 0
    		for iter = 1, config.trainset_size do
 	   		function feval(params)
-	   			fcn_net:zeroGradParameters()
-	      		-- gradParams:zero()
+	   			-- fcn_net:zeroGradParameters()
+	      		gradParams:zero()
 				batchInputs = trainset[iter][1]:cuda()
 				batchLabels = trainset[iter][2]:cuda()
+				print(batchInputs:size())
 				-- batchInputs = batchInputs:cuda()
 				-- batchLabels = batchLabels:cuda()
 				local outputs = fcn_net:forward(batchInputs)
@@ -75,15 +76,17 @@ function train()
 					end
 				end
 				-- calculate loss
-	      		local loss = criterion:forward(outputs, batchLabels)
-	      		local dloss_doutputs = criterion:backward(outputs, batchLabels)
-	      		fcn_net:backward(batchInputs, dloss_doutputs)
-	      		return loss, gradParams
+	      			local loss = criterion:forward(outputs, batchLabels)
+	      			local dloss_doutputs = criterion:backward(outputs, batchLabels)
+	      			fcn_net:backward(batchInputs, dloss_doutputs)
+	      			return loss, gradParams
 	   		end
+			collectgarbage()
+			collectgarbage()
 	   		local free, total = cutorch.getMemoryUsage()
 			print(free, total)
 	   		_, loss = optim.sgd(feval, params, optimState)
-	   		print('>>>> iter = '.. iter.. ', per-image loss = '.. loss[1])
+	   		print('>>>> iter = '.. iter.. ', per-image loss = ')--.. loss[1])
 	   		-- save the preliminary model
 			-- torch.save('fcn8.t7', fcn_net)
 	   		cur_loss = cur_loss + loss[1]
