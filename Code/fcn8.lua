@@ -1,5 +1,4 @@
 require 'nn'
-require 'nngraph'
 require 'paths'
 require 'cunn'
 require 'cudnn'
@@ -48,18 +47,18 @@ end
 -- conv4_1 & relu4_1
 ConvReLU_1(256,512)
 -- conv4_2 & relu4_2
--- ConvReLU_1(512,512)
+ConvReLU_1(512,512)
 -- conv4_3 & relu4_3
--- ConvReLU_1(512,512)
+ConvReLU_1(512,512)
 -- pool4
 layer_stack_1:add(nn.SpatialMaxPooling(2,2,2,2))
 
 -- conv5_1 & relu5_1
 ConvReLU_2(512,512)
 -- conv5_2 & relu5_2
--- ConvReLU_2(512,512)
+ConvReLU_2(512,512)
 -- conv5_3 & relu5_3
--- ConvReLU_2(512,512)
+ConvReLU_2(512,512)
 -- pool5
 layer_stack_2:add(nn.SpatialMaxPooling(2,2,2,2))
 -- fc6
@@ -91,7 +90,7 @@ layer_stack_1:add(nn.ConcatTable()
 layer_stack_1:add(nn.CropTable(2, 6))
 layer_stack_1:add(nn.CropTable(3, 6))
 
-layer_stack_1:add(nn.CAddTable(true))
+layer_stack_1:add(nn.CAddTable())
 --upscore_l4(upscore_pool4)
 layer_stack_1:add(nn.SpatialFullConvolution(21,21,4,4,2,2,0,0,0,0):noBias())
 
@@ -127,7 +126,7 @@ layer_stack_0:add(nn.ConcatTable()
 --score_pool3c(crop score_pool3 to upscore_pool4)
 layer_stack_0:add(nn.CropTable(2, 10))
 layer_stack_0:add(nn.CropTable(3, 10))
-layer_stack_0:add(nn.CAddTable(true))
+layer_stack_0:add(nn.CAddTable())
 
 
 --upscore8
@@ -143,6 +142,6 @@ fcn_net:add(nn.SelectTable(1))
 fcn_net:add(nn.Unsqueeze(1))
 fcn_net:add(nn.Contiguous())
 -- convert the net to cudnn
-cudnn.convert(fcn_net, cudnn)
+-- cudnn.convert(fcn_net, cudnn)
 
 return fcn_net
