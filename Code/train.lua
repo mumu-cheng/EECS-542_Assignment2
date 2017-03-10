@@ -10,6 +10,37 @@ require 'cutorch'
 -- paths.dofile('load.lua')
 print('>>>> Start loading training dataset')
 trainset = torch.load('../Datasett7/trainset.t7')
+function trainset:size()
+    return #self
+end
+
+function swap(array, index1, index2)
+    array[index1], array[index2] = array[index2], array[index1]
+end
+
+
+function trainset:shuffle()
+	local counter = trainset:size()
+	while counter > 1 do
+		local index = math.random(counter)
+		swap(trainset, index, counter)
+		counter = counter - 1
+	end
+end
+
+function trainset:resize(ratio)
+	for i = 1, trainset:size() do
+		local H = trainset[i]:size(2)
+		local W = trainset[i]:size(3)
+		local new_H = torch.floor(ratio * H)
+		local new_W = torch.floor(ratio * W)
+		trainset[i][1] = image.scale(trainset[i][1], new_H, new_W, "simple")
+		trainset[i][2] = image.scale(trainset[i][2], new_H, new_W, "simple")
+	end
+end
+
+trainset:resize(0.5)
+
 print('>>>> Start loading validation dataset')
 -- valset = torch.load('../Datasett7/valset.t7')
 print('>>>> Finish loading dataset')
