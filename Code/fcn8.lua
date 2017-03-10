@@ -17,7 +17,6 @@ local layer_stack_3 = nn.Sequential()
 -- sub_branch_2 from pool3 to upscore_pool4
 local layer_stack_4 = nn.Sequential()
 
-
 local layer_stack_5 = nn.Identity()
 
 -- building block for layer_stack_0
