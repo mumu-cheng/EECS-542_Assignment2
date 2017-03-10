@@ -5,7 +5,6 @@ require 'cunn'
 require 'cudnn'
 require 'optim'
 require 'cutorch'
-require 'os'
 
 -- load the data
 -- paths.dofile('load.lua')
@@ -40,7 +39,7 @@ local config = {
 
 -- load net module
 paths.dofile('fcn8.lua')
--- fcn_net = fcn_net:cuda()
+fcn_net = fcn_net:cuda()
 print('>>>> Finish loading net and converting net to cuda')
 local free, total = cutorch.getMemoryUsage()
 print(free, total)
@@ -51,24 +50,19 @@ function train()
 	-- criterion for loss
 	criterion = cudnn.SpatialCrossEntropyCriterion() -- how to implement 'normalize: false'
 	criterion = criterion:cuda()
-	print(#trainset[118][1])
 	-- start to train the net
 	local params, gradParams = fcn_net:getParameters()
 	for epoch = 1, config.max_epoch do
 		print('>>>> Starting to train epoch ' .. epoch .. ':')
    		cur_loss = 0
    		for iter = 1, config.trainset_size do
-   			-- if iter <= 116 or iter >= 120 then
-   			-- 	local start = os.clock()
-   			-- 	-- while os.clock() - start <  do end
 	   		function feval(params)
 	   			fcn_net:zeroGradParameters()
 	      		-- gradParams:zero()
-				local batchInputs = trainset[iter][1]:clone():cuda()
-				local batchLabels = trainset[iter][2]:clone():cuda()
+				batchInputs = trainset[iter][1]:cuda()
+				batchLabels = trainset[iter][2]:cuda()
 				-- batchInputs = batchInputs:cuda()
 				-- batchLabels = batchLabels:cuda()
-				-- batchLabels = nn.utils.addSingletonDimension(trainset[iter][2],1):cuda()
 				local outputs = fcn_net:forward(batchInputs)
 				-- ignore_label: 255; pixels of 255 are not counted into loss function
 				if torch.max(batchLabels) == 255 then
@@ -93,7 +87,6 @@ function train()
 	   		-- save the preliminary model
 			-- torch.save('fcn8.t7', fcn_net)
 	   		cur_loss = cur_loss + loss[1]
-	   		-- end
 	   	end
    		print('>>>> Epoch = '.. epoch.. ', current loss = '.. cur_loss)
    		-- val(epoch)
