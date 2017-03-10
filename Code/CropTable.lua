@@ -19,12 +19,12 @@ end
 
 -- gradInput should be like {tensor1, tensor2}, where gradInput[1] should be the same size as input[1](scale back)
 function CropTable:updateGradInput(input, gradOutput)
-    gradInput1 = gradOutput[1]:double()
+    local gradInput1 = gradOutput[1]:double()
 
     for i = 1, #self.axis_array do
-        local leftPaddingSize = gradOutput[1]:size()
+        local leftPaddingSize = gradInput1:size()
         leftPaddingSize[self.axis_array[i]] = self.offset_array[i] - 1
-        local rightPaddingSize = gradOutput[1]:size()
+        local rightPaddingSize = gradInput1:size()
         rightPaddingSize[self.axis_array[i]] = input[1]:size()[self.axis_array[i]] - input[2]:size()[self.axis_array[i]] - self.offset_array[i] + 1
 
         if rightPaddingSize[self.axis_array[i]] == 0 then
