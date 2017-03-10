@@ -4,6 +4,8 @@ require 'paths'
 require 'cunn'
 require 'cudnn'
 require 'optim'
+require 'cutorch'
+require 'os'
 
 -- load the data
 -- paths.dofile('load.lua')
@@ -38,8 +40,10 @@ local config = {
 
 -- load net module
 paths.dofile('fcn8.lua')
-fcn_net = fcn_net:cuda()
+-- fcn_net = fcn_net:cuda()
 print('>>>> Finish loading net and converting net to cuda')
+local free, total = cutorch.getMemoryUsage()
+print(free, total)
 -- print(fcn_net)
 
 -- train 
@@ -47,12 +51,16 @@ function train()
 	-- criterion for loss
 	criterion = cudnn.SpatialCrossEntropyCriterion() -- how to implement 'normalize: false'
 	criterion = criterion:cuda()
+	print(#trainset[118][1])
 	-- start to train the net
-	params, gradParams = fcn_net:getParameters()
+	local params, gradParams = fcn_net:getParameters()
 	for epoch = 1, config.max_epoch do
 		print('>>>> Starting to train epoch ' .. epoch .. ':')
    		cur_loss = 0
    		for iter = 1, config.trainset_size do
+   			-- if iter <= 116 or iter >= 120 then
+   			-- 	local start = os.clock()
+   			-- 	-- while os.clock() - start <  do end
 	   		function feval(params)
 	   			fcn_net:zeroGradParameters()
 	      		-- gradParams:zero()
@@ -78,12 +86,14 @@ function train()
 	      		fcn_net:backward(batchInputs, dloss_doutputs)
 	      		return loss, gradParams
 	   		end
+	   		local free, total = cutorch.getMemoryUsage()
+			print(free, total)
 	   		_, loss = optim.sgd(feval, params, optimState)
 	   		print('>>>> iter = '.. iter.. ', per-image loss = '.. loss[1])
 	   		-- save the preliminary model
 			-- torch.save('fcn8.t7', fcn_net)
 	   		cur_loss = cur_loss + loss[1]
-	   		-- break
+	   		-- end
 	   	end
    		print('>>>> Epoch = '.. epoch.. ', current loss = '.. cur_loss)
    		-- val(epoch)
