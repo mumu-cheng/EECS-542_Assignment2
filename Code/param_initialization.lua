@@ -22,8 +22,8 @@ param_1[12]:copy(param_2[12])
 param_1[13]:copy(param_2[13])
 param_1[14]:copy(param_2[14])
 -- deconvolution
-param_1[15]:fill(0)
-param_1[16]:fill(0)
+param_1[15] = param_1[15]/1000
+param_1[16] = param_1[16]/1000
 -- conv4
 param_1[17]:copy(param_2[15])
 param_1[18]:copy(param_2[16])
@@ -32,8 +32,8 @@ param_1[20]:copy(param_2[18])
 param_1[21]:copy(param_2[19])
 param_1[22]:copy(param_2[20])
 -- deconvolution
-param_1[23]:fill(0)
-param_1[24]:fill(0)
+param_1[23] = param_1[23]/1000
+param_1[24] = param_1[24]/1000
 -- conv5
 param_1[25]:copy(param_2[21])
 param_1[26]:copy(param_2[22])
@@ -47,11 +47,11 @@ param_1[32]:copy(param_2[28])
 param_1[33]:copy(param_2[29])
 param_1[34]:copy(param_2[30])
 -- score
-param_1[35]:fill(0)
-param_1[36]:fill(0)
-param_1[37]:fill(0)
-param_1[38]:fill(0)
-param_1[39]:fill(0)
+param_1[35] = param_1[35]/1000
+param_1[36] = param_1[36]/1000
+param_1[37] = param_1[37]/1000
+param_1[38] = param_1[38]/1000
+param_1[39] = param_1[39]/1000
 
 torch.save('fcn8.t7',fcn_net)
 

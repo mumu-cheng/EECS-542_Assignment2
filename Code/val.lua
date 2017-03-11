@@ -14,6 +14,7 @@ valset = torch.load('../Datasett7/valset.t7')
 
 -- load the val indices of all images
 val_indices = {}
+data_dir = '../'
 local val_f = io.open(data_dir.."VOC2011/ImageSets/Segmentation/val.txt")
 if val_f then
     for line in val_f:lines() do
@@ -35,7 +36,7 @@ end
 -- load the untrained model
 -- paths.dofile('fcn8.lua')
 paths.dofile('CropTable.lua')
-fcn_net = torch.load('fcn8.t7')
+fcn_net = torch.load('fcn8_2.t7')
 fcn_net = fcn_net:cuda()
 print('>>>> Finish loading net and converting net to cuda')
 
