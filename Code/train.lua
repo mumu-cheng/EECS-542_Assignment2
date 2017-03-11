@@ -25,6 +25,7 @@ function trainset:shuffle()
 	end
 end
 
+-- the member function of trainset, resize every image in this trainset by ratio
 function trainset:resize(ratio)
 	for i = 1, trainset:size() do
 		local H = trainset[i][1]:size()[2]
@@ -130,23 +131,6 @@ function train()
 		end
 	end
 	-- logger:plot()
-end
-
--- validation
-function val(epoch)
-	print('>>>> Validation for epoch '.. epoch)
-	softmax_layer = nn.SpatialSoftMax():cuda()
-	for i = 1, config.valset_size do 
-		val_image = valset[i][1]:cuda()
-		true_seg = valset[i][2]:cuda()
-		net_seg = fcn_net:forward(val_image)
-		net_seg = softmax_layer:forward(net_seg)
-		_, net_seg = torch.max(net_seg,2)
-		net_seg = net_seg:squeeze()
-		true_seg = true_seg:squeeze()
-		compute_hist(net_seg,true_seg) 
-	end
-	calculate_metrics()
 end
 
 -- run

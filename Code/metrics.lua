@@ -21,7 +21,7 @@ function compute_hist(res, gtr)
 end
 
 -- calculate metrics
-function calculate_metrics()
+function calculate_metrics(hist)
 	-- some variable to calculate final metrics
 	-- the total number of pixels
 	local t = torch.sum(hist)
