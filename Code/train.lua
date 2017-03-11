@@ -5,19 +5,16 @@ require 'cunn'
 require 'cudnn'
 require 'optim'
 require 'cutorch'
+require 'image'
 
 -- load the data
 -- paths.dofile('load.lua')
 print('>>>> Start loading training dataset')
 trainset = torch.load('../Datasett7/trainset.t7')
-function trainset:size()
-    return #self
-end
 
 function swap(array, index1, index2)
     array[index1], array[index2] = array[index2], array[index1]
 end
-
 
 function trainset:shuffle()
 	local counter = trainset:size()
@@ -30,8 +27,8 @@ end
 
 function trainset:resize(ratio)
 	for i = 1, trainset:size() do
-		local H = trainset[i]:size(2)
-		local W = trainset[i]:size(3)
+		local H = trainset[i][1]:size()[2]
+		local W = trainset[i][1]:size()[3]
 		local new_H = torch.floor(ratio * H)
 		local new_W = torch.floor(ratio * W)
 		trainset[i][1] = image.scale(trainset[i][1], new_H, new_W, "simple")
@@ -44,9 +41,7 @@ trainset:resize(0.5)
 print('>>>> Start loading validation dataset')
 -- valset = torch.load('../Datasett7/valset.t7')
 print('>>>> Finish loading dataset')
--- convert the data to cuda (more than 12.7 GB out of memery)
--- paths.dofile('convertDataToCuda.lua')
--- convertdatatocuda()
+
 -- load the functions to calculate metrics 
 paths.dofile('metrics.lua')
 -- write the loss to a text file and read from there to plot the loss as training proceeds
@@ -62,24 +57,24 @@ local optimState = {
 -- hyperparameter
 local config = {
 	batch_size = 1, -- online learning
-	max_epoch = 2, -- max number of epochs
+	max_epoch = 2000, -- max number of epochs
 	trainset_size = trainset:size(),
 	-- valset_size = valset:size(),
 	-- testset_size = testset:size()
 }
 
--- load net module
+-- load the untrained model
 paths.dofile('fcn8.lua')
 fcn_net = fcn_net:cuda()
+-- load the vgg16 initialized model
 print('>>>> Finish loading net and converting net to cuda')
-local free, total = cutorch.getMemoryUsage()
-print(free, total)
--- print(fcn_net)
+-- local free, total = cutorch.getMemoryUsage()
+-- print(free, total)
 
 -- train 
 function train()
 	-- criterion for loss
-	criterion = cudnn.SpatialCrossEntropyCriterion() -- how to implement 'normalize: false'
+	criterion = cudnn.SpatialCrossEntropyCriterion()
 	criterion = criterion:cuda()
 	-- start to train the net
 	local params, gradParams = fcn_net:getParameters()
@@ -92,7 +87,6 @@ function train()
 	      		gradParams:zero()
 				batchInputs = trainset[iter][1]:cuda()
 				batchLabels = trainset[iter][2]:cuda()
-				print(batchInputs:size())
 				-- batchInputs = batchInputs:cuda()
 				-- batchLabels = batchLabels:cuda()
 				local outputs = fcn_net:forward(batchInputs)
@@ -100,36 +94,34 @@ function train()
 				if torch.max(batchLabels) == 255 then
 					local idx = batchLabels:eq(255)
 					batchLabels[idx] = 1
-					-- idx = idx:squeeze()
 					outputs[1][1][idx] = 1
 					for j = 2,21 do
 						outputs[1][j][idx] = 0
 					end
 				end
 				-- calculate loss
-	      			local loss = criterion:forward(outputs, batchLabels)
-	      			local dloss_doutputs = criterion:backward(outputs, batchLabels)
-	      			fcn_net:backward(batchInputs, dloss_doutputs)
-	      			return loss, gradParams
+      			local loss = criterion:forward(outputs, batchLabels)
+      			local dloss_doutputs = criterion:backward(outputs, batchLabels)
+      			fcn_net:backward(batchInputs, dloss_doutputs)
+      			return loss, gradParams
 	   		end
 			collectgarbage()
-			collectgarbage()
-	   		local free, total = cutorch.getMemoryUsage()
-			print(free, total)
+	   		-- local free, total = cutorch.getMemoryUsage()
+			-- print(free, total)
 	   		_, loss = optim.sgd(feval, params, optimState)
-	   		print('>>>> iter = '.. iter.. ', per-image loss = ')--.. loss[1])
-	   		-- save the preliminary model
-			-- torch.save('fcn8.t7', fcn_net)
+	   		-- print('>>>> iter = '.. iter.. ', per-image loss = ' .. loss[1])
 	   		cur_loss = cur_loss + loss[1]
 	   	end
    		print('>>>> Epoch = '.. epoch.. ', current loss = '.. cur_loss)
    		-- val(epoch)
    		-- write the loss since this epoch to the log
-   		logger:add{epoch, current_loss, acc, mean_acc, mean_iu, fw_iu}
+   		logger:add{epoch, cur_loss, acc, mean_acc, mean_iu, fw_iu}
    		-- logger:style{'+-','+-','+-','+-','+-','+-'}   		
 		trainset:shuffle()
 	end
-	-- logger:plot() 
+	-- logger:plot()
+	-- save the preliminary model
+	torch.save('fcn8.t7', fcn_net)
 end
 
 -- validate
