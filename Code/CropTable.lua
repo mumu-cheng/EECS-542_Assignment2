@@ -9,6 +9,16 @@ end
 -- input should be like {tensor1, tensor2}, crop tensor1 to be the same size as tensor2
 -- on the axis with certain offset
 function CropTable:updateOutput(input)
+    --print('input1:')
+    --print(input[1]:size())
+    --print('input2:')
+    --print(input[2]:size())
+
+    --print('axis_array:')
+    --print(self.axis_array)
+    --print('offest_array:')
+    --print(self.offset_array)
+
     local output1 = input[1]
     for i = 1, #self.axis_array do
         output1 = output1:narrow(self.axis_array[i], self.offset_array[i], input[2]:size()[self.axis_array[i]])
@@ -36,7 +46,7 @@ function CropTable:updateGradInput(input, gradOutput)
             gradInput1 = torch.cat({leftPadding, gradInput1, rightPadding}, self.axis_array[i])
         end
     end
-    self.gradInput = {gradInput1:cuda(), gradOutput[2]:cuda()}
-    -- self.gradInput = {gradInput1, gradOutput[2]}
+    -- self.gradInput = {gradInput1:cuda(), gradOutput[2]:cuda()}
+    self.gradInput = {gradInput1, gradOutput[2]}
     return self.gradInput
 end
