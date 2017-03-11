@@ -57,28 +57,30 @@ local optimState = {
 -- hyperparameter
 local config = {
 	batch_size = 1, -- online learning
-	max_epoch = 2000, -- max number of epochs
+	max_epoch = 400, -- max number of epochs
 	trainset_size = trainset:size(),
 	-- valset_size = valset:size(),
-	-- testset_size = testset:size()
 }
 
 -- load the untrained model
-paths.dofile('fcn8.lua')
+-- paths.dofile('fcn8.lua')
+paths.dofile('CropTable.lua')
+fcn_net = torch.load('fcn8.t7')
 fcn_net = fcn_net:cuda()
--- load the vgg16 initialized model
 print('>>>> Finish loading net and converting net to cuda')
--- local free, total = cutorch.getMemoryUsage()
--- print(free, total)
 
 -- train 
 function train()
+	model_idx = 1
 	-- criterion for loss
 	criterion = cudnn.SpatialCrossEntropyCriterion()
 	criterion = criterion:cuda()
 	-- start to train the net
 	local params, gradParams = fcn_net:getParameters()
 	for epoch = 1, config.max_epoch do
+
+		local time = sys.clock()
+
 		print('>>>> Starting to train epoch ' .. epoch .. ':')
    		cur_loss = 0
    		for iter = 1, config.trainset_size do
@@ -112,19 +114,25 @@ function train()
 	   		-- print('>>>> iter = '.. iter.. ', per-image loss = ' .. loss[1])
 	   		cur_loss = cur_loss + loss[1]
 	   	end
-   		print('>>>> Epoch = '.. epoch.. ', current loss = '.. cur_loss)
+
+	   	time = sys.clock() - time
+
+   		print('>>>> Epoch = ' .. epoch .. ', current loss = ' .. cur_loss .. ', time cost = ' .. (time*1000) .. 'ms')
    		-- val(epoch)
    		-- write the loss since this epoch to the log
-   		logger:add{epoch, cur_loss, acc, mean_acc, mean_iu, fw_iu}
+   		logger:add{epoch, cur_loss, time, acc, mean_acc, mean_iu, fw_iu}
    		-- logger:style{'+-','+-','+-','+-','+-','+-'}   		
 		trainset:shuffle()
+		-- save the preliminary model
+		if epoch%25 == 0 then
+			torch.save('fcn8_' .. model_idx .. '.t7', fcn_net)
+			model_idx = model_idx + 1
+		end
 	end
 	-- logger:plot()
-	-- save the preliminary model
-	torch.save('fcn8.t7', fcn_net)
 end
 
--- validate
+-- validation
 function val(epoch)
 	print('>>>> Validation for epoch '.. epoch)
 	softmax_layer = nn.SpatialSoftMax():cuda()
@@ -141,20 +149,5 @@ function val(epoch)
 	calculate_metrics()
 end
 
--- test(need to modify)
-function test()
-	softmax_layer = nn.SpatialSoftMax():cuda()
-	for i = 1, config.testset_size do 
-		test_image = testset[i][1]:cuda()
-		true_seg = testset[i][2]:cuda()
-		net_seg = fcn_net:forward(test_image)
-		net_seg = softmax_layer:forward(net_seg)
-		compute_hist(net_seg,true_seg)
-	end
-	epoch = 'test phase'
-	calculate_metrics()
-end
-
 -- run
 train()
--- test()

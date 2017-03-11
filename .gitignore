@@ -5,3 +5,5 @@
 /Datasett7/trainset.t7
 /Datasett7/valset.t7
 /Datasett7/testset.t7
+/Code/vgg16.t7
+/Code/fcn8.t7
