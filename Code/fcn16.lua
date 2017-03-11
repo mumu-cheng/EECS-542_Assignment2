@@ -105,32 +105,4 @@ fcn_net:add(nn.ConcatTable()
 fcn_net:add(nn.CropTable({2,3}, {28,28}))
 fcn_net:add(nn.SelectTable(1))
 
--- convert the net to cudnn
---cudnn.convert(fcn_net, cudnn)
---loss
---crit = cudnn.SpatialCrossEntropyCriterion()
-
-
--- initialization from MSR
--- local function MSRinit(net)
---   local function init(name)
---     for k,v in pairs(net:findModules(name)) do
---       local n = v.kW*v.kH*v.nOutputPlane
---       v.weight:normal(0,math.sqrt(2/n))
---       v.bias:zero()
---     end
---   end
---   -- have to do for both backends
---   init'nn.SpatialConvolution'
--- end
-
--- MSRinit(vgg)
-
---trainer = nn.StochasticGradient(fcn_net, crit)
---trainer.learningRate = 0.001
---trainer.maxIteration = 5
--- check that we can propagate forward without errors
--- should get 16x10 tensor
---print(#vgg:cuda():forward(torch.CudaTensor(16,3,32,32)))
-
 return fcn_net
