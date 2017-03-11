@@ -50,7 +50,7 @@ logger = optim.Logger('train_loss.log')
 logger:setNames{'Epoch','Training loss.','Val pixel acc.','Val mean acc.','mean IU','FW IU'}
 -- states variables for the optimization process
 local optimState = {
-	learningRate = 0.000001, -- learning rate 10^-4 as per the paper
+	learningRate = 0.00000001, -- learning rate 10^-4 as per the paper
 	-- learningRateDecay = 1e-4,
 	momentum = 0.90,
 	weightDecay = 0.0005
@@ -126,7 +126,7 @@ function train()
    		-- logger:style{'+-','+-','+-','+-','+-','+-'}   		
 		trainset:shuffle()
 		-- save the preliminary model
-		if epoch%25 == 0 then
+		if epoch%5 == 0 then
 			torch.save('fcn8_' .. model_idx .. '.t7', fcn_net)
 			model_idx = model_idx + 1
 		end

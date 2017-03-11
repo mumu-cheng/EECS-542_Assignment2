@@ -1,3 +1,1 @@
 Epoch	Training loss.	Val pixel acc.	Val mean acc.	mean IU	FW IU	
- 5.1000e+01	 1.1842e+03	 2.5664e+02	
- 5.2000e+01	 1.1958e+03	 2.6398e+02	
