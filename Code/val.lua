@@ -29,7 +29,7 @@ paths.dofile('metrics.lua')
 paths.dofile('getLabelMap.lua')
 PixelMap = {}
 
-for k, v in pairs(LabelMap) do
+for k, v in pairs(labelMap) do
 	PixelMap[v] = k
 end
 -- load the untrained model
