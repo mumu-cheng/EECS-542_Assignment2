@@ -1,7 +1,7 @@
 require 'nn'
 require 'paths'
-require 'cunn'
-require 'cudnn'
+-- require 'cunn'
+-- require 'cudnn'
 
 paths.dofile('CropTable.lua')
 
@@ -67,7 +67,7 @@ ConvReLU2(512,512)
 -- pool5
 layer_stack_2:add(nn.SpatialMaxPooling(2,2,2,2))
 -- fc6
-layer_stack_2:add(nn.SpatialConvolution(512,4096,7,7,1,1,0,0))
+layer_stack_2:add(nn.SpatialConvolution(512,4096,7,7,1,1,1,1))
 -- relu6
 layer_stack_2:add(nn.ReLU(true))
 -- drop6
