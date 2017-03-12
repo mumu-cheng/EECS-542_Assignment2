@@ -56,7 +56,7 @@ ConvReLU(512,512)
 -- pool5
 layer_stack_0:add(nn.SpatialMaxPooling(2,2,2,2))
 -- fc6
-layer_stack_0:add(nn.SpatialConvolution(512,4096,7,7,1,1,0,0))
+layer_stack_0:add(nn.SpatialConvolution(512,4096,7,7,1,1,4,4))
 -- relu6
 layer_stack_0:add(nn.ReLU(true))
 -- drop6

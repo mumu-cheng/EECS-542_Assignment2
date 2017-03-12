@@ -104,5 +104,7 @@ fcn_net:add(nn.ConcatTable()
 
 fcn_net:add(nn.CropTable({2,3}, {28,28}))
 fcn_net:add(nn.SelectTable(1))
+fcn_net:add(nn.Unsqueeze(1))
+fcn_net:add(nn.Contiguous())
 
 return fcn_net

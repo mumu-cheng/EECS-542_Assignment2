@@ -1,14 +1,13 @@
 -- This file tests if our FCN32 network can work 
 require 'paths'
 require 'image'
-paths.dofile('fcn16.lua')
+paths.dofile('fcn32.lua')
 print(fcn_net)
 testData = torch.rand(3, 186, 186)
 print(#testData)
 
 predicted = fcn_net:forward(testData)
 print(#predicted)
-
 
 -- test_img_file = './VOC2011/JPEGImages/2007_000032.jpg'
 test_img_file = '../data/VOCdevkit/VOC2011/JPEGImages/2007_000032.jpg'
