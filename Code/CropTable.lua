@@ -9,15 +9,17 @@ end
 -- input should be like {tensor1, tensor2}, crop tensor1 to be the same size as tensor2
 -- on the axis with certain offset
 function CropTable:updateOutput(input)
-    --print('input1:')
-    --print(input[1]:size())
-    --print('input2:')
-    --print(input[2]:size())
+    print('=======================================')
+    print('input1:')
+    print(input[1]:size())
+    print('input2:')
+    print(input[2]:size())
 
-    --print('axis_array:')
-    --print(self.axis_array)
-    --print('offest_array:')
-    --print(self.offset_array)
+    print('axis_array:')
+    print(self.axis_array)
+    print('offest_array:')
+    print(self.offset_array)
+    print('=======================================')
 
     local output1 = input[1]
     for i = 1, #self.axis_array do
