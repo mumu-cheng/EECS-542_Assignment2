@@ -43,9 +43,9 @@ print('>>>> Finish loading net and converting net to cuda')
 -- softmax layer for getting the final result
 softmax_layer = nn.SpatialSoftMax():cuda()
 
-for i = 1, valset:size() do
-	val_image = valset[i][1]:cuda()
-	true_seg = valset[i][2]:cuda()
+for index = 1, valset:size() do
+	val_image = valset[index][1]:cuda()
+	true_seg = valset[index][2]:cuda()
 	net_seg = fcn_net:forward(val_image)
 	net_seg = softmax_layer:forward(net_seg)
 	_, net_seg = torch.max(net_seg,2)
@@ -68,7 +68,7 @@ for i = 1, valset:size() do
 		end
 	end
 
-	image.save("../SegmentRes/"..val_indices[i]..".png", seg_img)
+	image.save("../SegmentRes/"..val_indices[i]..".png", seg_img/255)
 	hist = compute_hist(net_seg,true_seg:squeeze()) 
 end
 
