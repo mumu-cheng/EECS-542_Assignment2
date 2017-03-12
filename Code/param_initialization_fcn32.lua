@@ -1,7 +1,7 @@
 require 'paths'
 
 paths.dofile('fcn32.lua')
-vgg = torch.load('vgg16.t7')
+vgg = torch.load('/scratch/eecs542w17_fluxg/yunfan/models/vgg16.t7')
 param_1 = fcn_net:parameters()
 param_2 = vgg:parameters()
 -- conv1
@@ -41,9 +41,8 @@ param_1[28]:copy(param_2[28])
 param_1[29]:copy(param_2[29])
 param_1[30]:copy(param_2[30])
 -- score
-param_1[31] = param_1[31]/1000
-param_1[32] = param_1[32]/1000
-param_1[33] = param_1[33]/1000
+param_1[31] = param_1[31]/10
+param_1[32] = param_1[32]/10
+param_1[33] = param_1[33]/10
 
-torch.save('fcn32.t7',fcn_net)
-
+torch.save('/scratch/eecs542w17_fluxg/yunfan/models/fcn32.t7',fcn_net)

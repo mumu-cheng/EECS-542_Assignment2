@@ -8,3 +8,6 @@
 /Code/vgg16.t7
 /Code/fcn8.t7
 /Code/*.t7
+/data
+/models
+/logs

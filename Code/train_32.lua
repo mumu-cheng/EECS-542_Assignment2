@@ -50,7 +50,7 @@ logger = optim.Logger('train_loss_32.log')
 logger:setNames{'Epoch','Training loss.','Val pixel acc.','Val mean acc.','mean IU','FW IU'}
 -- states variables for the optimization process
 local optimState = {
-	learningRate = 0.00005, -- learning rate 10^-4 as per the paper
+	learningRate = 0.00001, -- learning rate 10^-4 as per the paper
 	-- learningRateDecay = 1e-4,
 	momentum = 0.90,
 	weightDecay = 0.0005
@@ -65,21 +65,19 @@ local config = {
 }
 
 -- load the untrained model
--- paths.dofile('fcn8.lua')
 paths.dofile('CropTable.lua')
-fcn_net = torch.load('fcn32.t7')
+fcn_net = torch.load('/scratch/eecs542w17_fluxg/yunfan/models/fcn32.t7')
 fcn_net = fcn_net:cuda()
 print('>>>> Finish loading net and converting net to cuda')
 
 -- train 
 function train()
-	model_idx = 4
 	-- criterion for loss
 	criterion = cudnn.SpatialCrossEntropyCriterion()
 	criterion = criterion:cuda()
 	-- start to train the net
 	local params, gradParams = fcn_net:getParameters()
-	for epoch = 51, config.max_epoch do
+	for epoch = 1, config.max_epoch do
 
 		local time = sys.clock()
 
@@ -126,9 +124,8 @@ function train()
    		-- logger:style{'+-','+-','+-','+-','+-','+-'}   		
 		trainset:shuffle()
 		-- save the preliminary model
-		if epoch%25 == 0 then
-			torch.save('fcn32_' .. model_idx .. '.t7', fcn_net)
-			model_idx = model_idx + 1
+		if epoch % 25 == 0 then
+			torch.save('fcn32_' .. epoch .. '.t7', fcn_net)
 		end
 	end
 	-- logger:plot()

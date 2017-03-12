@@ -1,7 +1,7 @@
 -- This file tests if our FCN32 network can work 
 require 'paths'
 require 'image'
-paths.dofile('fcn16.lua')
+paths.dofile('fcn32.lua')
 print(fcn_net)
 testData = torch.rand(3, 186, 186)
 print(#testData)
