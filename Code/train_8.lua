@@ -67,7 +67,7 @@ local config = {
 -- load the untrained model
 -- paths.dofile('fcn8.lua')
 paths.dofile('CropTable.lua')
-fcn_net = torch.load('../Model/fcn8_2_125.t7')
+fcn_net = torch.load('../Model/atmp2/fcn8_2_125.t7')
 fcn_net = fcn_net:cuda()
 print('>>>> Finish loading net and converting net to cuda')
 
