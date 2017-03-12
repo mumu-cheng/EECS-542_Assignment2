@@ -7,7 +7,7 @@ require 'optim'
 require 'cutorch'
 require 'image'
 
-print('>>>> Start loading training dataset')
+print('>>>> Start loading validation dataset')
 
 -- load the validation set
 valset = torch.load('../Datasett7/valset.t7')
@@ -36,7 +36,7 @@ end
 -- load the untrained model
 -- paths.dofile('fcn8.lua')
 paths.dofile('CropTable.lua')
-fcn_net = torch.load('fcn8_2.t7')
+fcn_net = torch.load('fcn8_13.t7')
 fcn_net = fcn_net:cuda()
 print('>>>> Finish loading net and converting net to cuda')
 
@@ -50,7 +50,7 @@ for i = 1, valset:size() do
 	net_seg = softmax_layer:forward(net_seg)
 	_, net_seg = torch.max(net_seg,2)
 	net_seg = net_seg:squeeze()
-	print(#net_seg)
+	-- print(#net_seg)
 	local H = net_seg:size()[1]
 	local W = net_seg:size()[2]
 	local seg_img = torch.zeros(3, H, W)
