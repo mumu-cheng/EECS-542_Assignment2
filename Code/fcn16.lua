@@ -1,7 +1,7 @@
 require 'nn'
-require 'nngraph'
 require 'paths'
---require 'cunn'
+require 'cunn'
+require 'cudnn'
 
 paths.dofile('CropTable.lua')
 
