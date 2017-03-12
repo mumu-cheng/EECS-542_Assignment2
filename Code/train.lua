@@ -50,7 +50,7 @@ logger = optim.Logger('train_loss.log')
 logger:setNames{'Epoch','Training loss.','Val pixel acc.','Val mean acc.','mean IU','FW IU'}
 -- states variables for the optimization process
 local optimState = {
-	learningRate = 0.00000001, -- learning rate 10^-4 as per the paper
+	learningRate = 0.000005, -- learning rate 10^-4 as per the paper
 	-- learningRateDecay = 1e-4,
 	momentum = 0.90,
 	weightDecay = 0.0005
@@ -59,7 +59,7 @@ print('learningRate= ' .. optimState.learningRate)
 -- hyperparameter
 local config = {
 	batch_size = 1, -- online learning
-	max_epoch = 400, -- max number of epochs
+	max_epoch = 200, -- max number of epochs
 	trainset_size = trainset:size(),
 	-- valset_size = valset:size(),
 }
@@ -67,13 +67,12 @@ local config = {
 -- load the untrained model
 -- paths.dofile('fcn8.lua')
 paths.dofile('CropTable.lua')
-fcn_net = torch.load('fcn8_2.t7')
+fcn_net = torch.load('fcn8_2_6.t7')
 fcn_net = fcn_net:cuda()
 print('>>>> Finish loading net and converting net to cuda')
 
 -- train 
 function train()
-	model_idx = 4
 	-- criterion for loss
 	criterion = cudnn.SpatialCrossEntropyCriterion()
 	criterion = criterion:cuda()
@@ -126,9 +125,8 @@ function train()
    		-- logger:style{'+-','+-','+-','+-','+-','+-'}   		
 		trainset:shuffle()
 		-- save the preliminary model
-		if epoch%5 == 0 then
-			torch.save('fcn8_' .. model_idx .. '.t7', fcn_net)
-			model_idx = model_idx + 1
+		if epoch%25 == 0 then
+			torch.save('fcn8_2_' .. epoch .. '.t7', fcn_net)
 		end
 	end
 	-- logger:plot()
