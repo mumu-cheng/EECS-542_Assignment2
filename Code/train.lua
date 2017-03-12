@@ -78,7 +78,7 @@ function train()
 	criterion = criterion:cuda()
 	-- start to train the net
 	local params, gradParams = fcn_net:getParameters()
-	for epoch = 51, config.max_epoch do
+	for epoch = 96, config.max_epoch do
 
 		local time = sys.clock()
 
