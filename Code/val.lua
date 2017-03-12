@@ -68,7 +68,7 @@ for index = 1, valset:size() do
 		end
 	end
 
-	image.save("../SegmentRes/"..val_indices[i]..".png", seg_img/255)
+	image.save("../SegmentRes/"..val_indices[index]..".png", seg_img/255)
 	hist = compute_hist(net_seg,true_seg:squeeze()) 
 end
 
