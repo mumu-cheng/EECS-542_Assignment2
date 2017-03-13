@@ -51,7 +51,7 @@ end
 -- load the untrained model
 -- paths.dofile('fcn8.lua')
 paths.dofile('CropTable.lua')
-fcn_net = torch.load('./fcn8_pre200.t7')
+fcn_net = torch.load('./fcn8_pre450.t7')
 fcn_net = fcn_net:cuda()
 print('>>>> Finish loading net and converting net to cuda')
 
