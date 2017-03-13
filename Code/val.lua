@@ -12,6 +12,21 @@ print('>>>> Start loading validation dataset')
 -- load the validation set
 valset = torch.load('../Datasett7/valset.t7')
 
+-- the member function of valset, resize every image in this valset by ratio
+function valset:resize(ratio)
+	for i = 1, valset:size() do
+		local H = valset[i][1]:size()[2]
+		local W = valset[i][1]:size()[3]
+		local new_H = torch.floor(ratio * H)
+		local new_W = torch.floor(ratio * W)
+		valset[i][1] = image.scale(valset[i][1], new_H, new_W, "simple")
+		valset[i][2] = image.scale(valset[i][2], new_H, new_W, "simple")
+	end
+end
+
+valset:resize(0.5)
+
+
 -- load the val indices of all images
 val_indices = {}
 data_dir = '../'
