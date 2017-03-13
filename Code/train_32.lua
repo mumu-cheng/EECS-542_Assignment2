@@ -50,7 +50,7 @@ logger = optim.Logger('train_loss_32.log')
 logger:setNames{'Epoch','Training loss.','Val pixel acc.','Val mean acc.','mean IU','FW IU'}
 -- states variables for the optimization process
 local optimState = {
-	learningRate = 0.00001, -- learning rate 10^-4 as per the paper
+	learningRate = 0.0005, -- learning rate 10^-4 as per the paper
 	-- learningRateDecay = 1e-4,
 	momentum = 0.90,
 	weightDecay = 0.0005
@@ -66,7 +66,8 @@ local config = {
 
 -- load the untrained model
 paths.dofile('CropTable.lua')
-fcn_net = torch.load('/scratch/eecs542w17_fluxg/yunfan/models/fcn32.t7')
+-- fcn_net = torch.load('../Model/fcn32.t7')
+fcn_net = torch.load('./pre_fcn32.t7')
 fcn_net = fcn_net:cuda()
 print('>>>> Finish loading net and converting net to cuda')
 
@@ -124,7 +125,7 @@ function train()
    		-- logger:style{'+-','+-','+-','+-','+-','+-'}   		
 		trainset:shuffle()
 		-- save the preliminary model
-		if epoch % 25 == 0 then
+		if epoch % 10 == 0 then
 			torch.save('fcn32_' .. epoch .. '.t7', fcn_net)
 		end
 	end

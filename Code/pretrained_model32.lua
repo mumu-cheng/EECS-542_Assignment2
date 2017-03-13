@@ -1,9 +1,12 @@
+require 'loadcaffe'
 require 'paths'
 
+pretrained = loadcaffe.load('../../deploy.prototxt', '../../fcn8s-heavy-pascal.caffemodel', 'nn')
 paths.dofile('fcn32.lua')
-vgg = torch.load('./vgg16.t7')
+
 param_1 = fcn_net:parameters()
-param_2 = vgg:parameters()
+param_2 = pretrained:parameters()
+
 -- conv1
 param_1[1]:copy(param_2[1])
 param_1[2]:copy(param_2[2])
@@ -41,8 +44,8 @@ param_1[28]:copy(param_2[28])
 param_1[29]:copy(param_2[29])
 param_1[30]:copy(param_2[30])
 -- score
-param_1[31] = param_1[31]/10
-param_1[32] = param_1[32]/10
-param_1[33] = param_1[33]/10
+param_1[31]:copy(param_2[31])
+param_1[32]:copy(param_2[32])
+param_1[33] = param_1[33]/10000
 
-torch.save('../Model/fcn32.t7',fcn_net)
+torch.save('pre_fcn32.t7',fcn_net)
