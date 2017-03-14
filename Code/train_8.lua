@@ -32,8 +32,8 @@ function trainset:resize(ratio)
 		local W = trainset[i][1]:size()[3]
 		local new_H = torch.floor(ratio * H)
 		local new_W = torch.floor(ratio * W)
-		trainset[i][1] = image.scale(trainset[i][1], new_H, new_W, "simple")
-		trainset[i][2] = image.scale(trainset[i][2], new_H, new_W, "simple")
+		trainset[i][1] = image.scale(trainset[i][1], new_W, new_H, "simple")
+		trainset[i][2] = image.scale(trainset[i][2], new_W, new_H, "simple")
 	end
 end
 

@@ -19,8 +19,8 @@ function valset:resize(ratio)
 		local W = valset[i][1]:size()[3]
 		local new_H = torch.floor(ratio * H)
 		local new_W = torch.floor(ratio * W)
-		valset[i][1] = image.scale(valset[i][1], new_H, new_W, "simple")
-		valset[i][2] = image.scale(valset[i][2], new_H, new_W, "simple")
+		valset[i][1] = image.scale(valset[i][1], new_W, new_H, "simple")
+		valset[i][2] = image.scale(valset[i][2], new_W, new_H, "simple")
 	end
 end
 
