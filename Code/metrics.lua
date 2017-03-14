@@ -35,9 +35,10 @@ function calculate_metrics(hist)
 	local u = torch.add(torch.sum(hist,1),ti)
 	u:csub(torch.diag(hist))
 	-- frequency weighted
-	local fw = torch.div(toch.sum(torch.cmul(ti,ni)),t)
+	local fw = torch.sum(torch.cmul(ti,ni)) / t
 	-- pixel accuracy
-	acc = torch.div(n,t)
+	epoch = 1
+	acc = n / t
 	print('>>> ' .. 'epoch ' .. epoch .. ' -- pixel accuracy ' .. acc)
 	-- mean accuracy / per-class accuracy
 	per_acc = torch.cdiv(ni,ti)
